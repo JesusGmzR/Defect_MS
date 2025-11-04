@@ -1,7 +1,9 @@
 // login.js - Sistema de autenticación y navegación por roles
 
-// Configuración de la API
-const API_BASE_URL = 'http://localhost:3000/api';
+// Configuración de la API - Detecta automáticamente localhost vs producción
+const API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000/api' 
+    : `${window.location.origin}/api`;
 
 // Módulos disponibles por rol
 const MODULES_BY_ROLE = {
