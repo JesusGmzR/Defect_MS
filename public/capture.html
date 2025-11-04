@@ -10,13 +10,13 @@
   <style>
     /* Layout específico para captura - Fuentes grandes para mejor legibilidad */
     * {
-      font-size: 24px !important;
+      font-size: 12px !important;
     }
 
     body {
       height: 100vh;
       overflow: hidden;
-      font-size: 24px !important;
+      font-size: 12px !important;
     }
 
     .main-container {
@@ -26,7 +26,7 @@
 
     /* Panel Izquierdo - Captura */
     .left-panel {
-      width: 600px;
+      width: 350px;
       background: var(--ilsan-dark-secondary);
       border-right: 1px solid var(--ilsan-border);
       display: flex;
@@ -39,20 +39,20 @@
     }
 
     .scanner-title {
-      font-size: 24px !important;
+      font-size: 12px !important;
       font-weight: 700 !important;
       text-align: center;
       margin-bottom: 15px;
     }
 
     .camera-container {
-      position: relative;
-      width: 100%;
+      width: 80%;
       aspect-ratio: 4/3;
       background: #000;
       border-radius: 8px;
       overflow: hidden;
       border: 2px solid var(--ilsan-accent-blue);
+      margin-inline: auto;
     }
 
     #qr-reader {
@@ -67,7 +67,7 @@
       color: white;
       border: none;
       border-radius: 6px;
-      font-size: 24px !important;
+      font-size: 12px !important;
       font-weight: 700 !important;
       cursor: pointer;
       transition: all 0.3s ease;
@@ -110,7 +110,7 @@
       color: white;
       padding: 10px;
       border-radius: 4px;
-      font-size: 24px;
+      font-size: 12px;
       font-weight: 500;
       display: flex;
       align-items: center;
@@ -122,11 +122,11 @@
       text-align: center;
       padding: 40px 20px;
       color: var(--ilsan-text-gray);
-      font-size: 26px !important;
+      font-size: 13px !important;
     }
 
     .camera-status p {
-      font-size: 22px !important;
+      font-size: 11px !important;
     }
 
     /* Formulario de captura */
@@ -137,15 +137,15 @@
     }
 
     .form-label {
-      font-size: 30px !important;
+      font-size: 15px !important;
       font-weight: 600 !important;
-      margin: 12px 0 12px 0;
+      margin: 4px 0 4px 0;
       
     }
 
     .form-control, .form-select {
-      font-size: 24px !important;
-      padding: 12px 14px !important;
+      font-size: 12px !important;
+      padding: 6px 7px !important;
     }
 
     .form-control.scanned {
@@ -160,8 +160,8 @@
       color: white;
       border: none;
       border-radius: 6px;
-      margin: 28px 0 0 0;
-      font-size: 29px !important;
+      margin: 16px 0 0 0;
+      font-size: 14px !important;
       font-weight: 800 !important;
       cursor: pointer;
       transition: all 0.3s ease;
@@ -172,7 +172,7 @@
     }
 
     .btn-capture i {
-      font-size: 31px !important;
+      font-size: 15px !important;
     }
 
     .btn-capture:hover {
@@ -195,12 +195,12 @@
 
     .header {
       background: var(--ilsan-dark-header);
-      padding: 20px 30px;
+      padding: 10px 15px;
       border-bottom: 1px solid var(--ilsan-border);
     }
 
     .header-title {
-      font-size: 41px !important;
+      font-size: 20px !important;
       font-weight: 800 !important;
       color: var(--ilsan-text-light);
       margin: 0;
@@ -209,7 +209,7 @@
 
     .filters-bar {
       background: var(--ilsan-dark-secondary);
-      padding: 15px 30px;
+      padding: 10px 15px;
       border-bottom: 1px solid var(--ilsan-border);
       display: grid;
       grid-template-columns: repeat(5, 1fr) auto;
@@ -224,18 +224,18 @@
     }
 
     .filter-label {
-      font-size: 24px !important;
+      font-size: 12px !important;
       color: var(--ilsan-text-gray);
       font-weight: 700 !important;
       margin-bottom: 6px;
     }
 
     .filter-input {
-      padding: 12px 16px !important;
+      padding: 6px 8px !important;
       background: var(--ilsan-dark-primary);
       border: 1px solid var(--ilsan-border);
       border-radius: 4px;
-      font-size: 24px !important;
+      font-size: 12px !important;
       width: 100%;
       color: var(--ilsan-text-light);
     }
@@ -258,7 +258,7 @@
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 24px !important;
+      font-size: 12px !important;
       font-weight: 700 !important;
       display: flex;
       align-items: center;
@@ -268,7 +268,7 @@
     }
 
     .btn-buscar i {
-      font-size: 29px !important;
+      font-size: 14px !important;
     }
     
     .btn-buscar:hover {
@@ -303,7 +303,7 @@
     .defects-table th {
       padding: 18px 20px !important;
       text-align: center;
-      font-size: 27px !important;
+      font-size: 13px !important;
       font-weight: 600 !important;
       color: white;
       border: 1px solid var(--ilsan-border);
@@ -311,7 +311,7 @@
 
     .defects-table td {
       padding: 18px 20px !important;
-      font-size: 26px !important;
+      font-size: 12px !important;
       text-align: center;
       color: var(--ilsan-text-light);
       border: 1px solid #5F6375;
@@ -339,7 +339,7 @@
       display: inline-block;
       padding: 4px 12px;
       border-radius: 12px;
-      font-size: 21px;
+      font-size: 10px;
       font-weight: 500;
     }
 
@@ -360,7 +360,7 @@
     }
 
     .empty-state i {
-      font-size: 90px !important;
+      font-size: 45px !important;
       margin-bottom: 25px;
       opacity: 0.3;
       color: var(--ilsan-text-gray);
@@ -368,7 +368,7 @@
 
     .empty-state p {
       color: var(--ilsan-text-gray);
-      font-size: 29px !important;
+      font-size: 14px !important;
       font-weight: 600 !important;
     }
   </style>
@@ -379,7 +379,7 @@
     <div class="left-panel">
       <!-- Sección de Escáner -->
       <div class="scanner-section">
-        <h3 class="scanner-title header">Scan defect event</h3>
+        <h3 class="header-title header">Scan defect event</h3>
         
         <!-- Estado inicial -->
         <div v-if="!cameraReady && !cameraInitializing" class="camera-status">
