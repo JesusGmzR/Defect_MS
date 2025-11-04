@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Captura de Defectos OQC - ILSAN</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/css/ilsan-theme.css">
+  <style>
+    /* Layout específico para captura - Fuentes grandes para mejor legibilidad */
+    * {
+      font-size: 24px !important;
+    }
+
+    body {
+      height: 100vh;
+      overflow: hidden;
+      font-size: 24px !important;
+    }
+
+    .main-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Panel Izquierdo - Captura */
+    .left-panel {
+      width: 600px;
+      background: var(--ilsan-dark-secondary);
+      border-right: 1px solid var(--ilsan-border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .scanner-section {
+      border-bottom: 1px solid var(--ilsan-border);
+    }
+
+    .scanner-title {
+      font-size: 24px !important;
+      font-weight: 700 !important;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .camera-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid var(--ilsan-accent-blue);
+    }
+
+    #qr-reader {
+      width: 100%;
+      height: 100%;
+    }
+
+    .btn-activate-camera {
+      width: 100%;
+      padding: 16px !important;
+      background: var(--ilsan-accent-blue);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 24px !important;
+      font-weight: 700 !important;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-activate-camera:hover {
+      background: var(--ilsan-accent-dark-blue);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-switch-camera {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: 1px solid var(--ilsan-accent-blue);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: all 0.3s ease;
+    }
+
+    .btn-switch-camera:hover {
+      background: var(--ilsan-accent-blue);
+    }
+
+    .scan-result-mini {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+      background: rgba(69, 102, 54, 0.95);
+      color: white;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 24px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--ilsan-accent-green-light);
+    }
+
+    .camera-status {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--ilsan-text-gray);
+      font-size: 26px !important;
+    }
+
+    .camera-status p {
+      font-size: 22px !important;
+    }
+
+    /* Formulario de captura */
+    .form-section {
+      padding: 5px 15px 0 15px;
+      flex: 1;
+      background: var(--ilsan-dark-secondary);
+    }
+
+    .form-label {
+      font-size: 30px !important;
+      font-weight: 600 !important;
+      margin: 12px 0 12px 0;
+      
+    }
+
+    .form-control, .form-select {
+      font-size: 24px !important;
+      padding: 12px 14px !important;
+    }
+
+    .form-control.scanned {
+      border-color: var(--ilsan-accent-green);
+      background: rgba(69, 102, 54, 0.1);
+    }
+
+    .btn-capture {
+      width: 100%;
+      padding: 18px !important;
+      background: var(--ilsan-accent-green);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      margin: 28px 0 0 0;
+      font-size: 29px !important;
+      font-weight: 800 !important;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-capture i {
+      font-size: 31px !important;
+    }
+
+    .btn-capture:hover {
+      background: var(--ilsan-accent-green-light);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(69, 102, 54, 0.3);
+    }
+
+    .btn-capture:active {
+      transform: scale(0.98);
+    }
+
+    /* Panel Derecho - Lista de Defectos */
+    .right-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--ilsan-dark-primary);
+    }
+
+    .header {
+      background: var(--ilsan-dark-header);
+      padding: 20px 30px;
+      border-bottom: 1px solid var(--ilsan-border);
+    }
+
+    .header-title {
+      font-size: 41px !important;
+      font-weight: 800 !important;
+      color: var(--ilsan-text-light);
+      margin: 0;
+      letter-spacing: 0.5px;
+    }
+
+    .filters-bar {
+      background: var(--ilsan-dark-secondary);
+      padding: 15px 30px;
+      border-bottom: 1px solid var(--ilsan-border);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr) auto;
+      gap: 15px;
+      align-items: end;
+    }
+
+    .filter-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .filter-label {
+      font-size: 24px !important;
+      color: var(--ilsan-text-gray);
+      font-weight: 700 !important;
+      margin-bottom: 6px;
+    }
+
+    .filter-input {
+      padding: 12px 16px !important;
+      background: var(--ilsan-dark-primary);
+      border: 1px solid var(--ilsan-border);
+      border-radius: 4px;
+      font-size: 24px !important;
+      width: 100%;
+      color: var(--ilsan-text-light);
+    }
+
+    .filter-input:focus {
+      outline: none;
+      border-color: var(--ilsan-accent-blue);
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+
+    .filter-input option {
+      background: var(--ilsan-dark-secondary);
+      color: var(--ilsan-text-light);
+    }
+    
+    .btn-buscar {
+      padding: 12px 28px !important;
+      background: var(--ilsan-accent-blue);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 24px !important;
+      font-weight: 700 !important;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      transition: all 0.3s ease;
+    }
+
+    .btn-buscar i {
+      font-size: 29px !important;
+    }
+    
+    .btn-buscar:hover {
+      background: var(--ilsan-accent-dark-blue);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+
+    .defects-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 30px;
+      background: var(--ilsan-dark-primary);
+    }
+
+    .defects-table {
+      background: var(--ilsan-dark-secondary);
+      border: 1px solid var(--ilsan-border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .defects-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .defects-table thead {
+      background: var(--ilsan-accent-green);
+    }
+
+    .defects-table th {
+      padding: 18px 20px !important;
+      text-align: center;
+      font-size: 27px !important;
+      font-weight: 600 !important;
+      color: white;
+      border: 1px solid var(--ilsan-border);
+    }
+
+    .defects-table td {
+      padding: 18px 20px !important;
+      font-size: 26px !important;
+      text-align: center;
+      color: var(--ilsan-text-light);
+      border: 1px solid #5F6375;
+      background: var(--ilsan-dark-secondary);
+    }
+
+    .defects-table tbody tr {
+      transition: background 0.3s ease;
+      cursor: pointer;
+    }
+
+    .defects-table tbody tr:hover td {
+      background: var(--ilsan-hover);
+    }
+
+    .defects-table tbody tr:nth-child(even) td {
+      background: #44475A;
+    }
+
+    .defects-table tbody tr:nth-child(even):hover td {
+      background: var(--ilsan-hover);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 21px;
+      font-weight: 500;
+    }
+
+    .status-new {
+      background: var(--ilsan-accent-orange);
+      color: white;
+    }
+
+    .status-pending {
+      background: var(--ilsan-accent-blue);
+      color: white;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--ilsan-text-gray);
+    }
+
+    .empty-state i {
+      font-size: 90px !important;
+      margin-bottom: 25px;
+      opacity: 0.3;
+      color: var(--ilsan-text-gray);
+    }
+
+    .empty-state p {
+      color: var(--ilsan-text-gray);
+      font-size: 29px !important;
+      font-weight: 600 !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="main-container">
+    <!-- Panel Izquierdo - Captura -->
+    <div class="left-panel">
+      <!-- Sección de Escáner -->
+      <div class="scanner-section">
+        <h3 class="scanner-title header">Scan defect event</h3>
+        
+        <!-- Estado inicial -->
+        <div v-if="!cameraReady && !cameraInitializing" class="camera-status">
+          <p>{{ cameraStatus }}</p>
+          <button class="btn-activate-camera" @click="inicializarEscanerQR">
+            <i class="bi bi-camera-fill"></i> Activar Cámara
+          </button>
+        </div>
+
+        <!-- Inicializando -->
+        <div v-if="cameraInitializing" class="camera-status">
+          <p>{{ cameraStatus }}</p>
+          <div class="spinner-border text-primary"></div>
+        </div>
+        
+        <!-- Cámara activa -->
+        <div v-if="cameraReady" class="camera-container">
+          <div id="qr-reader"></div>
+          
+          <button 
+            class="btn-switch-camera" 
+            @click="switchCamera" 
+            v-if="availableCameras.length > 1"
+            title="Cambiar cámara">
+            <i class="bi bi-arrow-repeat"></i>
+          </button>
+
+          <div class="scan-result-mini" v-if="scannedCode">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>{{ scannedCode }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulario de Captura -->
+      <div class="form-section">
+        <form @submit.prevent="capturarDefecto">
+          <div class="form-group">
+            <label class="form-label">Fecha:</label>
+            <input 
+              type="date" 
+              class="form-control" 
+              v-model="nuevoDefecto.fecha"
+              required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Línea:</label>
+            <select class="form-select" v-model="nuevoDefecto.linea" required>
+              <option value="">Seleccione línea</option>
+              <option v-for="linea in lineas" :key="linea" :value="linea">{{ linea }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Código de parte:</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              :class="{ 'scanned': scannedCode }"
+              v-model="nuevoDefecto.codigo"
+              placeholder="Escanear o escribir"
+              required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Defecto:</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              v-model="nuevoDefecto.defecto"
+              placeholder="Descripción del defecto"
+              required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Ubicación:</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              v-model="nuevoDefecto.ubicacion"
+              placeholder="Ubicación del defecto"
+              required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Área:</label>
+            <select class="form-select" v-model="nuevoDefecto.area" required>
+              <option value="">Seleccione área</option>
+              <option v-for="area in areas" :key="area" :value="area">{{ area }}</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn-capture">
+            <i class="bi bi-save"></i>
+            Capturar (F1)
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Panel Derecho - Lista de Defectos -->
+    <div class="right-panel">
+      <!-- Header -->
+      <div class="header">
+        <h1 class="header-title">Defects List</h1>
+      </div>
+
+      <!-- Filtros -->
+      <div class="filters-bar">
+        <div class="filter-item">
+          <label class="filter-label">Material ID</label>
+          <input 
+            type="text" 
+            class="filter-input" 
+            v-model="filtros.materialId"
+            placeholder="Enter Material ID">
+        </div>
+
+        <div class="filter-item">
+          <label class="filter-label">Defect reason</label>
+          <select class="filter-input" v-model="filtros.defectReason">
+            <option value="">Select an option</option>
+            <option v-for="defecto in defectosComunes" :key="defecto" :value="defecto">
+              {{ defecto }}
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <label class="filter-label">Status</label>
+          <select class="filter-input" v-model="filtros.status">
+            <option value="">Select an option</option>
+            <option value="Pendiente_Reparacion">New</option>
+            <option value="En_Reparacion">In Progress</option>
+            <option value="Reparado">Repaired</option>
+            <option value="Aprobado">Approved</option>
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <label class="filter-label">From</label>
+          <input 
+            type="date" 
+            class="filter-input" 
+            v-model="filtros.fechaInicio">
+        </div>
+
+        <div class="filter-item">
+          <label class="filter-label">To</label>
+          <input 
+            type="date" 
+            class="filter-input" 
+            v-model="filtros.fechaFin">
+        </div>
+
+        <button class="btn-buscar" @click="cargarDefectos">
+          <i class="bi bi-search"></i> Buscar
+        </button>
+      </div>
+
+      <!-- Lista de Defectos -->
+      <div class="defects-container">
+        <div class="defects-table" v-if="defectosFiltrados.length > 0">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Línea</th>
+                <th>Código</th>
+                <th>Modelo</th>
+                <th>Defecto</th>
+                <th>Ubicación</th>
+                <th>Área</th>
+                <th>Capturista</th>
+                <th>Hora</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr 
+                v-for="(defecto, index) in defectosFiltrados" 
+                :key="defecto.id || index"
+                @click="selectDefecto(defecto)">
+                <td>{{ formatFechaSolo(defecto.fecha) }}</td>
+                <td>{{ defecto.linea }}</td>
+                <td>{{ defecto.codigo }}</td>
+                <td>{{ defecto.modelo || 'N/A' }}</td>
+                <td>{{ defecto.defecto }}</td>
+                <td>{{ defecto.ubicacion }}</td>
+                <td>{{ defecto.area }}</td>
+                <td>{{ defecto.registrado_por || 'Sistema' }}</td>
+                <td>{{ formatHora(defecto.fecha) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div v-else class="empty-state">
+          <i class="bi bi-inbox"></i>
+          <p>No hay defectos registrados</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de mensajes -->
+    <div class="modal fade" id="mensajeModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header" :class="{'bg-success': mensajeModal.tipo === 'exito', 'bg-danger': mensajeModal.tipo === 'error'}">
+            <h5 class="modal-title text-white">{{ mensajeModal.titulo }}</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            {{ mensajeModal.mensaje }}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="js/capture-app.js"></script>
+</body>
+</html>

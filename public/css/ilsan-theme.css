@@ -1,0 +1,812 @@
+/* ILSAN Theme - Estética estándar para toda la plataforma */
+
+:root {
+    /* Paleta ILSAN */
+    --ilsan-dark-primary: #32323E;
+    --ilsan-dark-secondary: #40424F;
+    --ilsan-dark-tertiary: #2c3e50;
+    --ilsan-dark-header: #172A46;
+    --ilsan-border: #20688C;
+    --ilsan-hover: #34334E;
+    --ilsan-accent-blue: #3498db;
+    --ilsan-accent-dark-blue: #2980b9;
+    --ilsan-accent-purple: #502696;
+    --ilsan-accent-purple-light: #8e44ad;
+    --ilsan-accent-orange: #e67e22;
+    --ilsan-accent-red: #e74c3c;
+    --ilsan-accent-green: #456636;
+    --ilsan-accent-green-light: #5a7c42;
+    --ilsan-text-light: #ecf0f1;
+    --ilsan-text-gray: #95a5a6;
+    --ilsan-text-secondary: lightgray;
+}
+
+/* Typography */
+* {
+    font-family: 'LG regular', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Layout bases */
+body {
+    background-color: var(--ilsan-dark-primary);
+    color: var(--ilsan-text-secondary);
+    min-height: 100vh;
+}
+
+.hub-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.container, .container-fluid {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+/* Cards base */
+.card {
+    background-color: var(--ilsan-dark-secondary);
+    border: 1px solid var(--ilsan-border);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    margin-bottom: 1rem;
+}
+
+.card-header {
+    background-color: var(--ilsan-dark-header);
+    border-bottom: 1px solid var(--ilsan-border);
+    padding: 1rem;
+}
+
+.card-body {
+    background-color: var(--ilsan-dark-secondary);
+    padding: 1.5rem;
+    color: var(--ilsan-text-light);
+}
+
+/* ============================================
+   NAVBAR/HEADER
+   ============================================ */
+
+.navbar-hub {
+    background-color: var(--ilsan-dark-tertiary);
+    padding: 0.75rem 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid var(--ilsan-border);
+}
+
+.navbar-hub .container-fluid {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+}
+
+.navbar-hub .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ilsan-text-light);
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.navbar-hub .brand i {
+    color: var(--ilsan-accent-blue);
+    font-size: 1.5rem;
+}
+
+.navbar-hub .user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--ilsan-text-light);
+    font-size: 0.9rem;
+}
+
+.navbar-hub .user-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ilsan-accent-blue), var(--ilsan-accent-dark-blue));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: white;
+    border: 2px solid var(--ilsan-accent-blue);
+    font-size: 0.9rem;
+}
+
+/* Botones personalizados */
+.btn-ilsan {
+    padding: 8px 16px;
+    border: 1px solid var(--ilsan-border);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-ilsan:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.btn-logout {
+    background-color: var(--ilsan-accent-red);
+    border-color: var(--ilsan-accent-red);
+    color: white;
+}
+
+.btn-logout:hover {
+    background-color: #c0392b;
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+    color: white;
+}
+
+.btn-consultar {
+    background-color: var(--ilsan-hover);
+    color: var(--ilsan-text-light);
+}
+
+.btn-consultar:hover {
+    background-color: var(--ilsan-accent-blue);
+}
+
+.btn-registrar {
+    background-color: var(--ilsan-accent-purple);
+    color: white;
+}
+
+.btn-registrar:hover {
+    background-color: var(--ilsan-accent-purple-light);
+}
+
+.btn-eliminar {
+    background-color: var(--ilsan-accent-red);
+    color: white;
+}
+
+.btn-eliminar:hover {
+    background-color: #c0392b;
+}
+
+.btn-exportar, .btn-importar {
+    background-color: var(--ilsan-accent-green);
+    color: white;
+}
+
+.btn-exportar:hover, .btn-importar:hover {
+    background-color: var(--ilsan-accent-green-light);
+}
+
+/* ============================================
+   HUB - LANDING PAGE
+   ============================================ */
+
+.hub-container {
+    flex: 1;
+    padding: 3rem 2rem;
+    background: linear-gradient(135deg, var(--ilsan-dark-primary) 0%, var(--ilsan-dark-secondary) 100%);
+}
+
+.hub-title {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.hub-title h1 {
+    color: var(--ilsan-text-light);
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.hub-title p {
+    color: var(--ilsan-text-gray);
+    font-size: 1rem;
+}
+
+/* Grid de aplicaciones */
+.apps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.app-card {
+    background: linear-gradient(135deg, var(--ilsan-dark-secondary) 0%, #484C5C 100%);
+    border: 1px solid var(--ilsan-border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    min-height: 250px;
+}
+
+.app-card:hover:not(.disabled) {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(52, 152, 219, 0.2);
+    border-color: var(--ilsan-accent-blue);
+}
+
+.app-card.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.app-card-header {
+    background: linear-gradient(135deg, var(--ilsan-dark-header) 0%, var(--ilsan-border) 100%);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--ilsan-border);
+}
+
+.app-card-header i {
+    font-size: 2rem;
+    color: var(--ilsan-accent-blue);
+}
+
+.app-card-header h2 {
+    color: var(--ilsan-text-light);
+    font-size: 1.2rem;
+    margin: 0;
+    flex: 1;
+}
+
+.app-card-body {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-card-description {
+    color: var(--ilsan-text-gray);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.app-card-footer {
+    margin-top: auto;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.app-card-btn {
+    flex: 1;
+    padding: 8px 12px;
+    background-color: var(--ilsan-accent-blue);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+}
+
+.app-card-btn:hover {
+    background-color: var(--ilsan-accent-dark-blue);
+    transform: scale(1.02);
+}
+
+.app-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background-color: var(--ilsan-accent-red);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: auto;
+}
+
+.app-badge.new {
+    background-color: var(--ilsan-accent-red);
+}
+
+.app-badge.coming {
+    background-color: var(--ilsan-accent-orange);
+}
+
+/* Sección "Más Herramientas" */
+.upcoming-section {
+    background: linear-gradient(135deg, var(--ilsan-dark-secondary) 0%, #484C5C 100%);
+    padding: 2rem;
+    border-radius: 8px;
+    border: 1px solid var(--ilsan-border);
+    text-align: center;
+    margin-top: 3rem;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.upcoming-section h3 {
+    color: var(--ilsan-text-light);
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+}
+
+.upcoming-section p {
+    color: var(--ilsan-text-gray);
+    font-size: 0.9rem;
+}
+
+/* ============================================
+   FORMULARIOS
+   ============================================ */
+
+.form-label {
+    color: var(--ilsan-text-light);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select {
+    background-color: var(--ilsan-dark-primary);
+    border: 1px solid var(--ilsan-border);
+    color: var(--ilsan-text-light);
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--ilsan-dark-secondary);
+    border-color: var(--ilsan-accent-blue);
+    color: var(--ilsan-text-light);
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+.form-control::placeholder {
+    color: var(--ilsan-text-gray);
+    opacity: 0.7;
+}
+
+.form-select option {
+    background-color: var(--ilsan-dark-secondary);
+    color: var(--ilsan-text-light);
+}
+
+/* ============================================
+   TABLAS
+   ============================================ */
+
+.table-container {
+    background-color: var(--ilsan-dark-secondary);
+    padding: 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    overflow-x: auto;
+    border: 1px solid var(--ilsan-border);
+    border-radius: 4px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    font-size: 0.85rem;
+    background-color: var(--ilsan-dark-secondary);
+}
+
+.table thead th {
+    background-color: var(--ilsan-dark-header);
+    color: var(--ilsan-text-light);
+    padding: 10px 8px;
+    text-align: center;
+    border: 1px solid var(--ilsan-border);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.table tbody td {
+    padding: 8px 6px;
+    text-align: center;
+    border: 1px solid #5F6375;
+    background-color: var(--ilsan-dark-secondary);
+    color: var(--ilsan-text-secondary);
+    transition: background-color 0.3s ease;
+}
+
+.table tbody tr:hover td {
+    background-color: var(--ilsan-hover);
+}
+
+.table tbody tr:nth-child(even) td {
+    background-color: #44475A;
+}
+
+.table tbody tr:nth-child(even):hover td {
+    background-color: var(--ilsan-hover);
+}
+
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--ilsan-hover);
+}
+
+/* ============================================
+   DROPDOWNS Y ALERTS
+   ============================================ */
+
+.dropdown {
+    background-color: var(--ilsan-dark-tertiary);
+    color: var(--ilsan-text-light);
+    border: 1px solid var(--ilsan-border);
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-size: 0.85rem;
+    transition: border-color 0.3s ease;
+}
+
+.dropdown:focus {
+    outline: none;
+    border-color: var(--ilsan-accent-blue);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    background-color: var(--ilsan-dark-tertiary);
+}
+
+.alert {
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 1rem;
+}
+
+.alert-success {
+    background-color: rgba(69, 102, 54, 0.2);
+    border: 1px solid var(--ilsan-accent-green);
+    color: var(--ilsan-accent-green-light);
+}
+
+.alert-danger {
+    background-color: rgba(231, 76, 60, 0.2);
+    border: 1px solid var(--ilsan-accent-red);
+    color: #e74c3c;
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+
+.badge {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge.bg-primary {
+    background-color: var(--ilsan-accent-blue) !important;
+}
+
+.badge.bg-secondary {
+    background-color: #6c757d !important;
+}
+
+.badge.bg-info {
+    background-color: #17a2b8 !important;
+}
+
+.badge.bg-warning {
+    background-color: var(--ilsan-accent-orange) !important;
+}
+
+.badge.bg-danger {
+    background-color: var(--ilsan-accent-red) !important;
+}
+
+.badge.bg-success {
+    background-color: var(--ilsan-accent-green) !important;
+}
+
+/* ============================================
+   TEXT UTILITIES
+   ============================================ */
+
+.text-muted {
+    color: var(--ilsan-text-gray) !important;
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+/* ============================================
+   SPINNERS
+   ============================================ */
+
+.spinner-border {
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    vertical-align: text-bottom;
+    border: 0.25em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border 0.75s linear infinite;
+}
+
+.spinner-border.text-primary {
+    color: var(--ilsan-accent-blue) !important;
+}
+
+@keyframes spinner-border {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+   QR READER STYLES
+   ============================================ */
+
+#qr-reader {
+    border: 2px solid var(--ilsan-accent-blue);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#qr-reader video {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+#qr-reader__scan_region {
+    background: transparent !important;
+}
+
+#qr-reader__dashboard_section {
+    background-color: var(--ilsan-dark-primary) !important;
+    border-top: 1px solid var(--ilsan-border);
+}
+
+#qr-reader__dashboard_section_csr button {
+    background-color: var(--ilsan-accent-blue) !important;
+    border: none !important;
+    color: white !important;
+}
+
+#qr-reader__dashboard_section_csr button:hover {
+    background-color: var(--ilsan-accent-dark-blue) !important;
+}
+
+/* ============================================
+   TABS
+   ============================================ */
+
+.nav-tabs {
+    border-bottom: 2px solid var(--ilsan-border);
+}
+
+.nav-tabs .nav-link {
+    color: var(--ilsan-text-light);
+    background-color: transparent;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--ilsan-accent-blue);
+    background-color: rgba(52, 152, 219, 0.1);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--ilsan-accent-blue);
+    background-color: var(--ilsan-dark-secondary);
+    border-bottom: 3px solid var(--ilsan-accent-blue);
+}
+
+.tab-content {
+    background-color: transparent;
+    padding: 1.5rem 0;
+}
+
+/* ============================================
+   ROWS AND COLS
+   ============================================ */
+
+.row {
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
+}
+
+.row > * {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
+.mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+.mt-2 {
+    margin-top: 0.5rem !important;
+}
+
+.mt-3 {
+    margin-top: 1rem !important;
+}
+
+.mt-4 {
+    margin-top: 1.5rem !important;
+}
+
+.me-1 {
+    margin-right: 0.25rem !important;
+}
+
+.me-2 {
+    margin-right: 0.5rem !important;
+}
+
+.w-100 {
+    width: 100% !important;
+}
+
+.d-flex {
+    display: flex !important;
+}
+
+.gap-2 {
+    gap: 0.5rem !important;
+}
+
+.float-end {
+    float: right !important;
+}
+
+/* ============================================
+   MODALES
+   ============================================ */
+
+.modal-content {
+    background-color: var(--ilsan-dark-secondary);
+    border: 1px solid var(--ilsan-border);
+    border-radius: 8px;
+}
+
+.modal-header {
+    background-color: var(--ilsan-dark-header);
+    border-bottom: 1px solid var(--ilsan-border);
+    padding: 1rem 1.5rem;
+}
+
+.modal-header .modal-title {
+    color: var(--ilsan-text-light);
+    font-weight: 600;
+}
+
+.modal-header .btn-close {
+    filter: invert(1);
+    opacity: 0.7;
+}
+
+.modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+.modal-body {
+    background-color: var(--ilsan-dark-secondary);
+    color: var(--ilsan-text-light);
+    padding: 1.5rem;
+}
+
+.modal-body p {
+    color: var(--ilsan-text-light);
+    margin-bottom: 0.5rem;
+}
+
+.modal-body strong {
+    color: var(--ilsan-accent-blue);
+}
+
+.modal-footer {
+    background-color: var(--ilsan-dark-secondary);
+    border-top: 1px solid var(--ilsan-border);
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--ilsan-border);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+    .navbar-hub .container-fluid {
+        padding: 0 1rem;
+        flex-wrap: wrap;
+    }
+
+    .navbar-hub .user-info {
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    .hub-container {
+        padding: 2rem 1rem;
+    }
+
+    .hub-title h1 {
+        font-size: 1.8rem;
+    }
+
+    .apps-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .app-card {
+        min-height: 200px;
+    }
+
+    .upcoming-section {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar-hub .brand {
+        font-size: 1.1rem;
+    }
+
+    .navbar-hub .user-info {
+        font-size: 0.8rem;
+    }
+
+    .hub-title h1 {
+        font-size: 1.4rem;
+    }
+
+    .app-card-header {
+        padding: 1rem;
+    }
+
+    .app-card-body {
+        padding: 1rem;
+    }
+
+    .table {
+        font-size: 0.75rem;
+    }
+
+    .table thead th,
+    .table tbody td {
+        padding: 6px 4px;
+    }
+}

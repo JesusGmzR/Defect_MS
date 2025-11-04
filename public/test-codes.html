@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Códigos de Prueba</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .code-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .qr-code {
+            margin: 20px auto;
+            display: block;
+        }
+        .material-id {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+            margin: 10px 0;
+        }
+        .instructions {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .barcode {
+            font-family: 'Libre Barcode 128', monospace;
+            font-size: 48px;
+            letter-spacing: 2px;
+            color: #000;
+            background: #fff;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Códigos de Prueba para Sistema de Defectos</h1>
+        
+        <div class="instructions">
+            <strong>Instrucciones:</strong>
+            <ol>
+                <li>Abra la aplicación de defectos en otra pestaña</li>
+                <li>Active la cámara y seleccione el modo QR o Barcode</li>
+                <li>Apunte la cámara a los códigos de esta página</li>
+                <li>Los Material IDs se detectarán automáticamente</li>
+            </ol>
+        </div>
+
+        <!-- Códigos QR de prueba -->
+        <div class="code-section">
+            <h3>📱 Códigos QR de Prueba</h3>
+            
+            <div style="display: inline-block; margin: 20px;">
+                <canvas id="qr1" class="qr-code"></canvas>
+                <div class="material-id">MAT12345</div>
+            </div>
+            
+            <div style="display: inline-block; margin: 20px;">
+                <canvas id="qr2" class="qr-code"></canvas>
+                <div class="material-id">PART-ABC123</div>
+            </div>
+            
+            <div style="display: inline-block; margin: 20px;">
+                <canvas id="qr3" class="qr-code"></canvas>
+                <div class="material-id">DEF789</div>
+            </div>
+        </div>
+
+        <!-- Códigos de barras simulados -->
+        <div class="code-section">
+            <h3>📊 Códigos de Barras de Prueba</h3>
+            <p><small>Nota: Estos son códigos simulados. Use códigos de barras reales para mejores resultados.</small></p>
+            
+            <div class="barcode">123456789012</div>
+            <div class="material-id">Material ID: 123456789012</div>
+            <br>
+            
+            <div class="barcode">456789123456</div>
+            <div class="material-id">Material ID: 456789123456</div>
+            <br>
+            
+            <div class="barcode">789012345678</div>
+            <div class="material-id">Material ID: 789012345678</div>
+        </div>
+
+        <div class="instructions">
+            <strong>💡 Consejos de uso:</strong>
+            <ul>
+                <li>Mantenga la cámara estable y enfocada en el código</li>
+                <li>Asegúrese de que haya buena iluminación</li>
+                <li>El escaneo es automático - no necesita botones adicionales</li>
+                <li>El Material ID se aplicará automáticamente cuando se detecte</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Generar códigos QR
+        function generateQRCode(elementId, text) {
+            QRCode.toCanvas(document.getElementById(elementId), text, {
+                width: 200,
+                height: 200,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                }
+            }, function (error) {
+                if (error) console.error(error);
+                console.log('QR generado:', text);
+            });
+        }
+
+        // Generar los códigos QR cuando la página cargue
+        window.onload = function() {
+            generateQRCode('qr1', 'MAT12345');
+            generateQRCode('qr2', 'PART-ABC123'); 
+            generateQRCode('qr3', 'DEF789');
+        };
+    </script>
+</body>
+</html>
