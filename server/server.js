@@ -33,9 +33,14 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Error interno del servidor' });
 });
 
-// Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
-  console.log(`✅ Base de datos: MySQL`);
-  console.log(`✅ Entorno: ${process.env.NODE_ENV || 'development'}`);
-});
+// Iniciar servidor (solo en desarrollo, no en Vercel)
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
+    console.log(`✅ Base de datos: MySQL`);
+    console.log(`✅ Entorno: ${process.env.NODE_ENV || 'development'}`);
+  });
+}
+
+// Exportar para Vercel
+module.exports = app;
