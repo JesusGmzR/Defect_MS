@@ -1,10 +1,17 @@
 const { createApp } = Vue;
 
+// Utilidad para obtener la fecha local en formato YYYY-MM-DD sin desplazamiento por zona horaria
+const getLocalISODate = () => {
+  const date = new Date();
+  date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+  return date.toISOString().slice(0, 10);
+};
+
 createApp({
   data() {
     return {
       nuevoDefecto: {
-        fecha: new Date().toISOString().substr(0, 10),
+        fecha: getLocalISODate(),
         linea: '',
         codigo: '',
         defecto: '',
@@ -31,14 +38,16 @@ createApp({
         materialId: '',
         defectReason: '',
         status: '',
-        fechaInicio: new Date().toISOString().substr(0, 10),
-        fechaFin: new Date().toISOString().substr(0, 10)
+        fechaInicio: getLocalISODate(),
+        fechaFin: getLocalISODate()
       },
       mensajeModal: {
         titulo: '',
         mensaje: '',
         tipo: 'exito'
       },
+      esTablet: window.innerWidth <= 1200,
+      showManualCodigo: false,
       // Escáner QR
       html5QrCode: null,
       availableCameras: [],
@@ -54,6 +63,8 @@ createApp({
   },
   mounted() {
     this.cargarDefectos();
+    this.handleResize();
+    window.addEventListener('resize', this.handleResize);
     
     // Atajo de teclado F1 para capturar
     document.addEventListener('keydown', (e) => {
@@ -67,6 +78,9 @@ createApp({
     setInterval(() => {
       this.cargarDefectos();
     }, 30000);
+  },
+  beforeUnmount() {
+    window.removeEventListener('resize', this.handleResize);
   },
   computed: {
     defectosFiltrados() {
@@ -99,9 +113,27 @@ createApp({
       
       console.log('✅ Total defectos filtrados:', defectos.length);
       return defectos;
+    },
+    topPartCodes() {
+      const conteos = {};
+      this.defectosHoy.forEach(def => {
+        if (def.codigo) {
+          const prefix = def.codigo.slice(0, 11);
+          if (prefix.trim()) {
+            conteos[prefix] = (conteos[prefix] || 0) + 1;
+          }
+        }
+      });
+      return Object.entries(conteos)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([prefix, count]) => ({ prefix, count }));
     }
   },
   methods: {
+    handleResize() {
+      this.esTablet = window.innerWidth <= 1200;
+    },
     async cargarDefectos() {
       try {
         const params = {};
@@ -120,6 +152,22 @@ createApp({
       } catch (error) {
         console.error('❌ Error al cargar defectos:', error);
       }
+    },
+    seleccionarLinea(linea) {
+      this.nuevoDefecto.linea = linea;
+    },
+    seleccionarArea(area) {
+      this.nuevoDefecto.area = area;
+    },
+    seleccionarCodigoPrefix(prefix) {
+      this.nuevoDefecto.codigo = prefix;
+      this.showManualCodigo = false;
+    },
+    toggleManualCodigo() {
+      this.showManualCodigo = !this.showManualCodigo;
+    },
+    seleccionarDefectoRapido(defecto) {
+      this.nuevoDefecto.defecto = defecto;
     },
     
     async capturarDefecto() {
@@ -170,7 +218,9 @@ createApp({
       this.nuevoDefecto.ubicacion = '';
       this.nuevoDefecto.area = '';
       this.nuevoDefecto.modelo = '';
+      this.nuevoDefecto.fecha = getLocalISODate();
       this.scannedCode = null;
+      this.showManualCodigo = false;
     },
     
     formatFecha(fechaStr) {

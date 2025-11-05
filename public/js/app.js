@@ -1,10 +1,16 @@
 const { createApp } = Vue;
 
+const getLocalISODate = () => {
+  const date = new Date();
+  date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+  return date.toISOString().slice(0, 10);
+};
+
 createApp({
   data() {
     return {
       nuevoDefecto: {
-        fecha: new Date().toISOString().substr(0, 10),
+        fecha: getLocalISODate(),
         linea: '',
         codigo: '',
         defecto: '',
@@ -21,8 +27,13 @@ createApp({
       ],
       areas: ['SMD', 'IMD', 'Ensamble', 'Mantenimiento', 'Micom'],
       filtros: {
-        fechaInicio: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().substr(0, 10),
-        fechaFin: new Date().toISOString().substr(0, 10),
+        fechaInicio: (() => {
+          const date = new Date();
+          date.setDate(date.getDate() - 7);
+          date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+          return date.toISOString().slice(0, 10);
+        })(),
+        fechaFin: getLocalISODate(),
         materialId: '',
         defectReason: '',
         status: '',
