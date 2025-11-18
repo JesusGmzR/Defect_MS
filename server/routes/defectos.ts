@@ -1,9 +1,25 @@
-const express = require('express');
-const router = express.Router();
-const db = require('../database/db');
+import express, { Request, Response } from 'express';
+import pool from '../database/db';
+import { 
+  Defecto,
+  CreateDefectoRequest, 
+  CreateDefectoResponse,
+  DefectosFilters,
+  ErrorResponse,
+  SuccessResponse,
+  DBResult,
+  TipoInspeccion,
+  EtapaDeteccion,
+  DefectoStatus
+} from '../../types';
 
-// Registrar nuevo defecto
-router.post('/', async (req, res) => {
+const router = express.Router();
+
+/**
+ * POST /api/defectos
+ * Registrar nuevo defecto
+ */
+router.post('/', async (req: Request<{}, CreateDefectoResponse | ErrorResponse, CreateDefectoRequest>, res: Response<CreateDefectoResponse | ErrorResponse>) => {
   try {
     const { 
       fecha,
@@ -20,28 +36,31 @@ router.post('/', async (req, res) => {
     
     // Validar campos requeridos
     if (!linea || !codigo || !defecto || !ubicacion || !area || !tipo_inspeccion || !etapa_deteccion || !registrado_por) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         error: 'Faltan campos requeridos',
-        required: ['linea', 'codigo', 'defecto', 'ubicacion', 'area', 'tipo_inspeccion', 'etapa_deteccion', 'registrado_por']
+        details: 'Se requieren: linea, codigo, defecto, ubicacion, area, tipo_inspeccion, etapa_deteccion, registrado_por'
       });
+      return;
     }
     
     // Validar enums
-    const validTipoInspeccion = ['ICT', 'FCT', 'Packing', 'Visual'];
-    const validEtapaDeteccion = ['LQC', 'OQC'];
+    const validTipoInspeccion: TipoInspeccion[] = ['ICT', 'FCT', 'Packing', 'Visual'];
+    const validEtapaDeteccion: EtapaDeteccion[] = ['LQC', 'OQC'];
     
     if (!validTipoInspeccion.includes(tipo_inspeccion)) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         error: 'tipo_inspeccion inválido',
-        valid: validTipoInspeccion
+        details: `Valores válidos: ${validTipoInspeccion.join(', ')}`
       });
+      return;
     }
     
     if (!validEtapaDeteccion.includes(etapa_deteccion)) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         error: 'etapa_deteccion inválida',
-        valid: validEtapaDeteccion
+        details: `Valores válidos: ${validEtapaDeteccion.join(', ')}`
       });
+      return;
     }
     
     // Generar ID único
@@ -53,14 +72,14 @@ router.post('/', async (req, res) => {
     console.log('📥 Fecha recibida del cliente:', fecha);
     console.log('🕐 Fecha que se registrará:', fechaRegistro);
     
-    // Insertar en la base de datos con fecha del cliente
+    // Insertar en la base de datos
     const query = `
       INSERT INTO defect_data 
       (id, fecha, linea, codigo, defecto, ubicacion, area, modelo, tipo_inspeccion, etapa_deteccion, registrado_por)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
-    await db.execute(query, [
+    await pool.execute<DBResult>(query, [
       id, fechaRegistro, linea, codigo, defecto, ubicacion, area, modelo || '',
       tipo_inspeccion, etapa_deteccion, registrado_por
     ]);
@@ -74,13 +93,16 @@ router.post('/', async (req, res) => {
     console.error('Error al guardar defecto:', error);
     res.status(500).json({ 
       error: 'Error al guardar el defecto', 
-      details: error.message 
+      details: (error as Error).message 
     });
   }
 });
 
-// Consultar defectos con filtros
-router.get('/', async (req, res) => {
+/**
+ * GET /api/defectos
+ * Consultar defectos con filtros
+ */
+router.get('/', async (req: Request<{}, Defecto[] | ErrorResponse, {}, DefectosFilters>, res: Response<Defecto[] | ErrorResponse>) => {
   try {
     console.log('📋 GET /api/defectos - Query params:', req.query);
     
@@ -100,7 +122,7 @@ router.get('/', async (req, res) => {
     
     // Construir query dinámica
     let query = 'SELECT * FROM defect_data WHERE 1=1';
-    const params = [];
+    const params: any[] = [];
     
     if (fecha) {
       query += ' AND DATE(fecha) = ?';
@@ -157,7 +179,7 @@ router.get('/', async (req, res) => {
     console.log('📝 Query:', query);
     console.log('📝 Params:', params);
     
-    const [rows] = await db.execute(query, params);
+    const [rows] = await pool.execute<Defecto[]>(query, params);
     
     console.log('✅ Resultados encontrados:', rows.length);
     
@@ -166,21 +188,25 @@ router.get('/', async (req, res) => {
     console.error('Error al consultar defectos:', error);
     res.status(500).json({ 
       error: 'Error al consultar defectos', 
-      details: error.message 
+      details: (error as Error).message 
     });
   }
 });
 
-// Obtener un defecto por ID
-router.get('/:id', async (req, res) => {
+/**
+ * GET /api/defectos/:id
+ * Obtener un defecto específico por ID
+ */
+router.get('/:id', async (req: Request<{ id: string }>, res: Response<Defecto | ErrorResponse>) => {
   try {
     const { id } = req.params;
     
     const query = 'SELECT * FROM defect_data WHERE id = ?';
-    const [rows] = await db.execute(query, [id]);
+    const [rows] = await pool.execute<Defecto[]>(query, [id]);
     
     if (rows.length === 0) {
-      return res.status(404).json({ error: 'Defecto no encontrado' });
+      res.status(404).json({ error: 'Defecto no encontrado' });
+      return;
     }
     
     res.json(rows[0]);
@@ -188,27 +214,35 @@ router.get('/:id', async (req, res) => {
     console.error('Error al consultar defecto:', error);
     res.status(500).json({ 
       error: 'Error al consultar defecto', 
-      details: error.message 
+      details: (error as Error).message 
     });
   }
 });
 
-// Actualizar status de defecto
-router.put('/:id/status', async (req, res) => {
+/**
+ * PUT /api/defectos/:id/status
+ * Actualizar status de un defecto
+ */
+router.put('/:id/status', async (req: Request<{ id: string }, SuccessResponse | ErrorResponse, { status: DefectoStatus }>, res: Response<SuccessResponse | ErrorResponse>) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
     
-    const validStatus = ['Pendiente_Reparacion', 'En_Reparacion', 'Reparado', 'Rechazado', 'Aprobado'];
+    const validStatus: DefectoStatus[] = ['Pendiente_Reparacion', 'En_Reparacion', 'Reparado', 'Rechazado', 'Aprobado'];
     if (!validStatus.includes(status)) {
-      return res.status(400).json({ error: 'Status inválido' });
+      res.status(400).json({ 
+        error: 'Status inválido',
+        details: `Valores válidos: ${validStatus.join(', ')}`
+      });
+      return;
     }
     
     const query = 'UPDATE defect_data SET status = ? WHERE id = ?';
-    const [result] = await db.execute(query, [status, id]);
+    const [result] = await pool.execute<DBResult>(query, [status, id]);
     
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Defecto no encontrado' });
+      res.status(404).json({ error: 'Defecto no encontrado' });
+      return;
     }
     
     res.json({ 
@@ -219,9 +253,9 @@ router.put('/:id/status', async (req, res) => {
     console.error('Error al actualizar status:', error);
     res.status(500).json({ 
       error: 'Error al actualizar status', 
-      details: error.message 
+      details: (error as Error).message 
     });
   }
 });
 
-module.exports = router;
+export default router;

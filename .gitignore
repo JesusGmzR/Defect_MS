@@ -29,9 +29,10 @@ server/data/*.xlsx
 .DS_Store
 Thumbs.db
 
-# Build
+# Build / TypeScript
 dist/
 build/
+*.tsbuildinfo
 
 # Backups
 *.bak

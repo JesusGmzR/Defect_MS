@@ -183,8 +183,21 @@ createApp({
           return;
         }
 
+        // Combinar fecha seleccionada con hora actual del dispositivo
+        const fechaSeleccionada = this.nuevoDefecto.fecha; // Fecha del formulario (YYYY-MM-DD)
+        const ahora = new Date();
+        const horaActual = String(ahora.getHours()).padStart(2, '0') + ':' +
+          String(ahora.getMinutes()).padStart(2, '0') + ':' +
+          String(ahora.getSeconds()).padStart(2, '0');
+        
+        const fechaHoraLocal = fechaSeleccionada + ' ' + horaActual;
+        console.log('🕐 Fecha seleccionada:', fechaSeleccionada);
+        console.log('🕐 Hora actual:', horaActual);
+        console.log('🕐 Fecha/Hora a registrar:', fechaHoraLocal);
+
         // Preparar datos
         const defectoData = {
+          fecha: fechaHoraLocal, // Enviar fecha seleccionada + hora actual en formato MySQL
           linea: this.nuevoDefecto.linea,
           codigo: this.nuevoDefecto.codigo.trim().toUpperCase(),
           defecto: this.nuevoDefecto.defecto.trim(),
@@ -195,6 +208,8 @@ createApp({
           etapa_deteccion: this.nuevoDefecto.etapa_deteccion,
           registrado_por: 'Sistema Web OQC'
         };
+
+        console.log('📤 Datos enviados al servidor:', defectoData);
 
         // Enviar al servidor
         const response = await axios.post('/api/defectos', defectoData);
@@ -280,6 +295,64 @@ createApp({
     selectDefecto(defecto) {
       this.selectedDefecto = defecto;
       console.log('Defecto seleccionado:', defecto);
+    },
+    
+    descargarExcel() {
+      try {
+        // Crear workbook y worksheet
+        const wb = XLSX.utils.book_new();
+        
+        // Preparar datos para Excel
+        const datos = this.defectosFiltrados.map(defecto => ({
+          'Fecha': this.formatFechaSolo(defecto.fecha),
+          'Hora': this.formatHora(defecto.fecha),
+          'Línea': defecto.linea,
+          'Código de Parte': defecto.codigo,
+          'Modelo': defecto.modelo || 'N/A',
+          'Defecto': defecto.defecto,
+          'Ubicación': defecto.ubicacion,
+          'Área': defecto.area,
+          'Tipo Inspección': defecto.tipo_inspeccion || 'N/A',
+          'Etapa Detección': defecto.etapa_deteccion || 'N/A',
+          'Status': this.translateStatus(defecto.status),
+          'Capturista': defecto.registrado_por || 'Sistema'
+        }));
+        
+        // Crear worksheet
+        const ws = XLSX.utils.json_to_sheet(datos);
+        
+        // Ajustar anchos de columna
+        const colWidths = [
+          { wch: 12 }, // Fecha
+          { wch: 10 }, // Hora
+          { wch: 10 }, // Línea
+          { wch: 20 }, // Código
+          { wch: 15 }, // Modelo
+          { wch: 25 }, // Defecto
+          { wch: 20 }, // Ubicación
+          { wch: 15 }, // Área
+          { wch: 15 }, // Tipo Inspección
+          { wch: 15 }, // Etapa Detección
+          { wch: 15 }, // Status
+          { wch: 20 }  // Capturista
+        ];
+        ws['!cols'] = colWidths;
+        
+        // Agregar worksheet al workbook
+        XLSX.utils.book_append_sheet(wb, ws, 'Defectos');
+        
+        // Generar nombre de archivo con fecha
+        const fecha = new Date().toISOString().slice(0, 10);
+        const nombreArchivo = `Defectos_${fecha}.xlsx`;
+        
+        // Descargar archivo
+        XLSX.writeFile(wb, nombreArchivo);
+        
+        this.mostrarMensaje('Éxito', `Archivo ${nombreArchivo} descargado correctamente`, 'exito');
+      } catch (error) {
+        console.error('Error al descargar Excel:', error);
+        this.mostrarMensaje('Error', 'Error al generar archivo Excel', 'error');
+      }
     },
     
     mostrarMensaje(titulo, mensaje, tipo = 'exito') {
