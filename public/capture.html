@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -69,6 +70,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      position: relative;
     }
 
     .desktop-user-icon {
@@ -82,6 +84,7 @@
       cursor: pointer;
       transition: all 0.3s ease;
       border: 2px solid var(--ilsan-accent-green-light);
+      position: relative;
     }
 
     .desktop-user-icon:hover {
@@ -94,17 +97,122 @@
       color: white;
     }
 
+    .user-dropdown {
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: var(--ilsan-dark-secondary);
+      border: 2px solid var(--ilsan-border);
+      border-radius: 8px;
+      min-width: 200px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      display: none;
+      overflow: hidden;
+    }
+
+    .user-dropdown.show {
+      display: block;
+      animation: fadeInDown 0.3s ease;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .user-dropdown-header {
+      padding: 15px;
+      border-bottom: 1px solid var(--ilsan-border);
+      background: var(--ilsan-dark-primary);
+    }
+
+    .user-dropdown-name {
+      font-size: 14px !important;
+      font-weight: 700 !important;
+      color: var(--ilsan-text-light);
+      margin: 0;
+    }
+
+    .user-dropdown-role {
+      font-size: 11px !important;
+      color: var(--ilsan-text-gray);
+      margin: 0;
+    }
+
+    .user-dropdown-item {
+      padding: 12px 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--ilsan-text-light);
+      text-decoration: none;
+    }
+
+    .user-dropdown-item:hover {
+      background: var(--ilsan-hover);
+    }
+
+    .user-dropdown-item i {
+      font-size: 16px !important;
+      color: var(--ilsan-text-gray);
+    }
+
+    .user-dropdown-item.logout {
+      color: var(--ilsan-accent-red);
+      border-top: 1px solid var(--ilsan-border);
+    }
+
+    .user-dropdown-item.logout:hover {
+      background: rgba(231, 76, 60, 0.1);
+    }
+
+    .user-dropdown-item.logout i {
+      color: var(--ilsan-accent-red);
+    }
+
     .desktop-content-wrapper {
       display: flex;
       flex: 1;
       overflow: hidden;
     }
 
+    @media (min-width: 1025px) {
+      .desktop-top-bar {
+        display: flex !important;
+      }
+    }
+
+    @media (max-width: 1200px) {
+      .btn-toggle-list {
+        display: flex !important;
+      }
+
+      .desktop-content-wrapper {
+        flex-direction: column;
+      }
+
+      .right-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+    }
+
     @media (max-width: 1024px) {
       .desktop-content-wrapper {
         display: contents;
       }
-      
+
       .desktop-top-bar {
         display: none !important;
       }
@@ -118,6 +226,29 @@
       display: flex;
       flex-direction: column;
       overflow-y: auto;
+      transition: all 0.3s ease;
+    }
+
+    @media (max-width: 1200px) {
+      .left-panel {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--ilsan-border);
+        max-height: 50vh;
+        transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s,
+          opacity 0.4s ease;
+        opacity: 1;
+        overflow: hidden;
+      }
+
+      .left-panel.collapsed {
+        opacity: 0;
+        pointer-events: none;
+        max-height: 0;
+        border: none;
+        transition: opacity 0.4s ease,
+          max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s;
+      }
     }
 
     .scanner-section {
@@ -240,10 +371,11 @@
       font-size: 15px !important;
       font-weight: 600 !important;
       margin: 4px 0 4px 0;
-      
+
     }
 
-    .form-control, .form-select {
+    .form-control,
+    .form-select {
       font-size: 12px !important;
       padding: 6px 7px !important;
     }
@@ -297,6 +429,12 @@
       scrollbar-color: var(--ilsan-accent-blue) var(--ilsan-dark-primary);
     }
 
+    @media (max-width: 1200px) {
+      .right-panel {
+        transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+    }
+
     /* Scrollbar personalizado para panel derecho */
     .right-panel::-webkit-scrollbar {
       width: 8px;
@@ -342,6 +480,15 @@
       background: var(--ilsan-dark-header);
       padding: 10px 15px;
       border-bottom: 1px solid var(--ilsan-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    @media (max-width: 1200px) {
+      .header {
+        transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      }
     }
 
     .header-title {
@@ -349,6 +496,42 @@
       font-weight: 800 !important;
       color: var(--ilsan-text-light);
       margin: 0;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-toggle-list {
+      background: transparent;
+      border: 1px solid var(--ilsan-border);
+      color: var(--ilsan-text-gray);
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-toggle-list:hover {
+      background: var(--ilsan-hover);
+      border-color: var(--ilsan-accent-blue);
+      color: var(--ilsan-accent-blue);
+    }
+
+    .btn-toggle-list:active {
+      transform: scale(0.95);
+    }
+
+    .btn-toggle-list i {
+      font-size: 16px !important;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-toggle-list.collapsed i {
+      transform: rotate(180deg);
+    }
+
     /* Botones tablet generales (no visibles en desktop por defecto) */
     .btn-tablet-primary,
     .btn-tablet-secondary {
@@ -356,9 +539,6 @@
       align-items: center;
       justify-content: center;
       font-weight: 700;
-    }
-
-      letter-spacing: 0.5px;
     }
 
     .filters-bar {
@@ -369,6 +549,18 @@
       align-items: center;
       gap: 6px;
       flex-wrap: nowrap;
+      transition: opacity 0.6s ease,
+        max-height 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 1;
+      max-height: 500px;
+      overflow: hidden;
+    }
+
+    .filters-bar.section-hidden {
+      opacity: 0;
+      pointer-events: none;
+      max-height: 0;
+      padding: 0;
     }
 
     .filter-item {
@@ -405,7 +597,7 @@
       background: var(--ilsan-dark-secondary);
       color: var(--ilsan-text-light);
     }
-    
+
     .btn-buscar,
     .btn-descargar {
       padding: 10px !important;
@@ -440,7 +632,7 @@
       font-size: 18px !important;
       margin: 0;
     }
-    
+
     .btn-buscar:hover {
       background: var(--ilsan-accent-dark-blue);
       transform: translateY(-2px);
@@ -459,6 +651,13 @@
       overflow-x: hidden;
       padding: 6px 6px;
       background: var(--ilsan-dark-primary);
+      transition: opacity 0.6s ease;
+      opacity: 1;
+    }
+
+    .defects-container.section-hidden {
+      opacity: 0;
+      pointer-events: none;
     }
 
     .defects-table {
@@ -998,8 +1197,528 @@
         display: flex !important;
       }
     }
+
+    /* ====================
+       VERSION MÓVIL (< 768px)
+       ==================== */
+    @media (max-width: 767px) {
+      * {
+        font-size: 14px !important;
+      }
+
+      body {
+        overflow: hidden;
+      }
+
+      .main-container {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Ocultar elementos de desktop y tablet */
+      .desktop-top-bar,
+      .tablet-top-bar {
+        display: none !important;
+      }
+
+      .desktop-content-wrapper {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      /* Header móvil compacto */
+      .header {
+        padding: 8px 12px;
+        background: var(--ilsan-dark-primary);
+        border-bottom: 2px solid var(--ilsan-accent-blue);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+      }
+
+      .mobile-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .mobile-brand-logo {
+        height: 36px;
+        width: auto;
+      }
+
+      .mobile-brand-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1;
+      }
+
+      .mobile-brand-name {
+        font-size: 18px !important;
+        font-weight: 800 !important;
+        color: var(--ilsan-text-light);
+      }
+
+      .mobile-brand-subtitle {
+        font-size: 10px !important;
+        color: var(--ilsan-text-gray);
+      }
+
+      .mobile-header-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .btn-mobile-menu {
+        background: var(--ilsan-dark-secondary);
+        border: 1px solid var(--ilsan-border);
+        color: var(--ilsan-text-light);
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+      }
+
+      .btn-mobile-menu:active {
+        transform: scale(0.95);
+        background: var(--ilsan-hover);
+      }
+
+      .btn-mobile-menu i {
+        font-size: 20px !important;
+      }
+
+      .mobile-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        background: var(--ilsan-accent-red);
+        color: white;
+        border-radius: 10px;
+        padding: 2px 6px;
+        font-size: 10px !important;
+        font-weight: 700;
+      }
+
+      /* Panel izquierdo - Cámara QR a pantalla completa */
+      .left-panel {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: flex;
+        flex-direction: column;
+        background: var(--ilsan-dark-primary);
+        padding: 0;
+        overflow: hidden;
+      }
+
+      .scanner-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        border: none;
+        padding: 12px;
+      }
+
+      .scanner-title {
+        display: none;
+      }
+
+      .camera-frame {
+        flex: 1;
+        aspect-ratio: auto;
+        border-radius: 12px;
+        border: 2px solid var(--ilsan-accent-blue);
+      }
+
+      .camera-container {
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+      }
+
+      #qr-reader {
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+      }
+
+      .camera-status {
+        padding: 20px;
+      }
+
+      .btn-activate-camera {
+        padding: 16px 24px !important;
+        font-size: 16px !important;
+      }
+
+      .scan-result-mini {
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        padding: 12px 16px;
+        font-size: 14px !important;
+      }
+
+      .btn-switch-camera {
+        top: 15px;
+        right: 15px;
+        width: 50px;
+        height: 50px;
+      }
+
+      .btn-switch-camera i {
+        font-size: 24px !important;
+      }
+
+      /* Ocultar formulario en móvil (se usa modal) */
+      .form-section {
+        display: none;
+      }
+
+      /* Panel derecho - Sidebar lateral */
+      .right-panel {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 85%;
+        max-width: 320px;
+        height: 100vh;
+        background: var(--ilsan-dark-secondary);
+        z-index: 2000;
+        transition: left 0.3s ease;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .right-panel.show {
+        left: 0;
+      }
+
+      .right-panel .header {
+        background: var(--ilsan-dark-header);
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--ilsan-border);
+      }
+
+      .right-panel .header-title {
+        font-size: 18px !important;
+      }
+
+      .btn-toggle-list {
+        display: flex !important;
+      }
+
+      .filters-bar {
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .filter-item {
+        width: 100%;
+      }
+
+      .filter-input {
+        width: 100%;
+      }
+
+      .btn-buscar,
+      .btn-descargar {
+        width: 100%;
+        height: 44px;
+      }
+
+      .defects-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px;
+      }
+
+      .defects-table {
+        font-size: 12px;
+      }
+
+      .defects-table th,
+      .defects-table td {
+        padding: 8px 4px !important;
+        font-size: 11px !important;
+      }
+
+      /* Overlay oscuro para sidebar */
+      .mobile-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+
+      .mobile-overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      /* Modal de captura móvil */
+      .mobile-capture-modal {
+        position: fixed;
+        bottom: -100%;
+        left: 0;
+        width: 100%;
+        max-height: 80vh;
+        background: var(--ilsan-dark-secondary);
+        z-index: 2001;
+        transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .mobile-capture-modal.show {
+        bottom: 0;
+      }
+
+      .mobile-modal-header {
+        padding: 16px 20px;
+        background: var(--ilsan-dark-header);
+        border-bottom: 2px solid var(--ilsan-accent-green);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+      }
+
+      .mobile-modal-title {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        color: var(--ilsan-text-light);
+        margin: 0;
+      }
+
+      .btn-close-modal {
+        background: transparent;
+        border: none;
+        color: var(--ilsan-text-gray);
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-close-modal:active {
+        background: var(--ilsan-hover);
+        transform: scale(0.95);
+      }
+
+      .btn-close-modal i {
+        font-size: 24px !important;
+      }
+
+      .mobile-modal-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px 20px;
+      }
+
+      /* Sección de información (solo lectura) */
+      .mobile-info-section {
+        background: var(--ilsan-dark-primary);
+        border: 1px solid var(--ilsan-border);
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 20px;
+      }
+
+      .mobile-info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+      }
+
+      .mobile-info-item:not(:last-child) {
+        border-bottom: 1px solid var(--ilsan-border);
+      }
+
+      .mobile-info-label {
+        font-size: 13px !important;
+        color: var(--ilsan-text-gray);
+        font-weight: 600 !important;
+      }
+
+      .mobile-info-value {
+        font-size: 15px !important;
+        color: var(--ilsan-text-light);
+        font-weight: 700 !important;
+        font-family: 'Courier New', monospace;
+      }
+
+      .mobile-form-group {
+        margin-bottom: 16px;
+      }
+
+      .mobile-form-label {
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        color: var(--ilsan-text-light);
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      .mobile-form-input,
+      .mobile-form-select {
+        width: 100%;
+        padding: 12px;
+        background: var(--ilsan-dark-primary);
+        border: 1px solid var(--ilsan-border);
+        border-radius: 8px;
+        color: var(--ilsan-text-light);
+        font-size: 14px !important;
+      }
+
+      .mobile-form-input:focus,
+      .mobile-form-select:focus {
+        outline: none;
+        border-color: var(--ilsan-accent-blue);
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+      }
+
+      .mobile-form-input.scanned {
+        border-color: var(--ilsan-accent-green);
+        background: rgba(69, 102, 54, 0.1);
+      }
+
+      .mobile-quick-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .mobile-quick-btn {
+        padding: 12px;
+        background: var(--ilsan-dark-primary);
+        border: 1px solid var(--ilsan-border);
+        border-radius: 8px;
+        color: var(--ilsan-text-light);
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .mobile-quick-btn.active {
+        background: var(--ilsan-accent-blue);
+        border-color: var(--ilsan-accent-blue);
+        color: white;
+        box-shadow: 0 0 12px rgba(52, 152, 219, 0.4);
+      }
+
+      .mobile-quick-btn:active {
+        transform: scale(0.98);
+      }
+
+      .mobile-modal-footer {
+        padding: 16px 20px;
+        background: var(--ilsan-dark-primary);
+        border-top: 1px solid var(--ilsan-border);
+        display: flex;
+        gap: 12px;
+        flex-shrink: 0;
+      }
+
+      .btn-mobile-action {
+        flex: 1;
+        padding: 14px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .btn-mobile-clear {
+        background: transparent;
+        border: 1px solid var(--ilsan-border);
+        color: var(--ilsan-text-gray);
+      }
+
+      .btn-mobile-clear:active {
+        background: var(--ilsan-hover);
+        transform: scale(0.98);
+      }
+
+      .btn-mobile-save {
+        background: var(--ilsan-accent-green);
+        color: white;
+      }
+
+      .btn-mobile-save:active {
+        background: var(--ilsan-accent-green-light);
+        transform: scale(0.98);
+      }
+
+      .btn-mobile-action i {
+        font-size: 18px !important;
+      }
+
+      /* Botón flotante para captura manual */
+      .btn-float-capture {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: var(--ilsan-accent-green);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 1000;
+        transition: all 0.3s ease;
+      }
+
+      .btn-float-capture:active {
+        transform: scale(0.95);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      .btn-float-capture i {
+        font-size: 28px !important;
+      }
+    }
   </style>
 </head>
+
 <body>
   <div id="app" class="main-container">
     <!-- Barra superior para Desktop -->
@@ -1012,8 +1731,18 @@
         </div>
       </div>
       <div class="desktop-user-menu">
-        <div class="desktop-user-icon" @click="mostrarMenuUsuario" title="Menú de usuario">
+        <div class="desktop-user-icon" @click.stop="toggleUserDropdown" title="Menú de usuario">
           <i class="bi bi-person-fill"></i>
+        </div>
+        <div class="user-dropdown" :class="{ show: showUserDropdown }" v-if="showUserDropdown" @click.stop>
+          <div class="user-dropdown-header">
+            <p class="user-dropdown-name">{{ nombreUsuario }}</p>
+            <p class="user-dropdown-role">{{ rolUsuario }}</p>
+          </div>
+          <div @click="cerrarSesion" class="user-dropdown-item logout">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Cerrar Sesión</span>
+          </div>
         </div>
       </div>
     </div>
@@ -1033,333 +1762,389 @@
       </div>
     </div>
 
+    <!-- Header móvil -->
+    <div v-if="esMobile" class="header">
+      <div class="mobile-brand">
+        <img src="/ImagenLogo1.png" alt="ILSAN" class="mobile-brand-logo">
+        <div class="mobile-brand-text">
+          <span class="mobile-brand-name">DMS</span>
+          <span class="mobile-brand-subtitle">Defect Management</span>
+        </div>
+      </div>
+      <div class="mobile-header-actions">
+        <button class="btn-mobile-menu" @click="toggleSidebarMobile" title="Ver lista de defectos">
+          <i class="bi bi-list"></i>
+          <span class="mobile-badge" v-if="defectosHoy.length > 0">{{ defectosHoy.length }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Overlay oscuro para móvil -->
+    <div v-if="esMobile" class="mobile-overlay" :class="{ show: mostrarSidebarMobile }" @click="closeSidebarMobile"></div>
+
     <!-- Contenedor de contenido -->
     <div class="desktop-content-wrapper">
-    <!-- Panel Izquierdo - Captura -->
-    <div class="left-panel">
-      <!-- Sección de Escáner -->
-      <div class="scanner-section">
-        <div v-if="esTablet" class="tablet-panel-header">
-          <h3 class="tablet-panel-title">Detalle del producto</h3>
-        </div>
-        <h3 v-else class="header-title header">Detalle del producto</h3>
-        
-        <template v-if="esTablet">
-          <div class="camera-frame">
-            <div v-if="cameraReady" class="camera-container">
-              <div id="qr-reader"></div>
-              
-              <button 
-                class="btn-switch-camera" 
-                @click="switchCamera" 
-                v-if="availableCameras.length > 1"
-                title="Cambiar cámara">
-                <i class="bi bi-arrow-repeat"></i>
-              </button>
+      <!-- Panel Izquierdo - Captura -->
+      <div class="left-panel" :class="{ collapsed: esTablet && mostrarListaDefectos }">
+        <!-- Sección de Escáner -->
+        <div class="scanner-section">
+          <div v-if="esTablet" class="tablet-panel-header">
+            <h3 class="tablet-panel-title">Detalle del producto</h3>
+          </div>
+          <h3 v-else class="header-title header">Detalle del producto</h3>
 
-              <div class="scan-result-mini" v-if="scannedCode">
-                <i class="bi bi-check-circle-fill"></i>
-                <span>{{ scannedCode }}</span>
+          <template v-if="esTablet">
+            <div class="camera-frame">
+              <div v-if="cameraReady" class="camera-container">
+                <div id="qr-reader"></div>
+
+                <button class="btn-switch-camera" @click="switchCamera" v-if="availableCameras.length > 1"
+                  title="Cambiar cámara">
+                  <i class="bi bi-arrow-repeat"></i>
+                </button>
+
+                <div class="scan-result-mini" v-if="scannedCode">
+                  <i class="bi bi-check-circle-fill"></i>
+                  <span>{{ scannedCode }}</span>
+                </div>
+              </div>
+
+              <div v-else class="camera-placeholder">
+                <div v-if="cameraInitializing" class="camera-status">
+                  <p>{{ cameraStatus }}</p>
+                  <div class="spinner-border text-primary"></div>
+                </div>
+                <div v-else class="camera-status">
+                  <p>{{ cameraStatus }}</p>
+                  <button class="btn-activate-camera" @click="inicializarEscanerQR">
+                    <i class="bi bi-camera-fill"></i> Activar Cámara
+                  </button>
+                </div>
               </div>
             </div>
+          </template>
+          <template v-else>
+            <!-- Vista de escritorio: Sin camera-frame (logo movido al header) -->
+          </template>
 
-            <div v-else class="camera-placeholder">
-              <div v-if="cameraInitializing" class="camera-status">
-                <p>{{ cameraStatus }}</p>
-                <div class="spinner-border text-primary"></div>
+          <div v-if="esTablet" class="tablet-side-panel">
+            <div class="tablet-quick-section">
+              <h4 class="tablet-section-title">Código de parte</h4>
+              <input type="text" class="form-control tablet-input" :class="{ 'scanned': scannedCode }"
+                v-model="nuevoDefecto.codigo" placeholder="Escanea o escribe el código" required>
+            </div>
+
+            <div class="tablet-quick-section">
+              <h4 class="tablet-section-title">Fecha</h4>
+              <input type="date" class="form-control tablet-input" v-model="nuevoDefecto.fecha" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulario de Captura -->
+        <div class="form-section">
+          <form id="capture-form" @submit.prevent="capturarDefecto">
+            <template v-if="esTablet">
+              <div class="tablet-defecto-wrapper">
+                <div class="tablet-panel-header">
+                  <h3 class="tablet-panel-title">Detalle del defecto</h3>
+                </div>
+                <div class="tablet-defecto-grid">
+                  <div class="tablet-quick-section">
+                    <h4 class="tablet-section-title">Selecciona la línea</h4>
+                    <div class="tablet-grid">
+                      <button type="button" class="quick-btn" :class="{ active: nuevoDefecto.linea === linea }"
+                        v-for="linea in lineas" :key="`linea-${linea}`" @click="seleccionarLinea(linea)">
+                        {{ linea }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="tablet-quick-section">
+                    <h4 class="tablet-section-title">Defecto</h4>
+                    <div class="tablet-grid" v-if="defectosComunes.length">
+                      <button type="button" class="quick-btn pill" :class="{ active: nuevoDefecto.defecto === defecto }"
+                        v-for="defecto in defectosComunes" :key="`defecto-${defecto}`"
+                        @click="seleccionarDefectoRapido(defecto)">
+                        {{ defecto }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="tablet-quick-section">
+                    <h4 class="tablet-section-title">Ubicación</h4>
+                    <input type="text" class="form-control tablet-input" v-model="nuevoDefecto.ubicacion" required>
+                  </div>
+
+                  <div class="tablet-quick-section">
+                    <h4 class="tablet-section-title">Área</h4>
+                    <div class="tablet-grid">
+                      <button type="button" class="quick-btn" :class="{ active: nuevoDefecto.area === area }"
+                        v-for="area in areas" :key="`area-${area}`" @click="seleccionarArea(area)">
+                        {{ area }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div v-else class="camera-status">
-                <p>{{ cameraStatus }}</p>
-                <button class="btn-activate-camera" @click="inicializarEscanerQR">
-                  <i class="bi bi-camera-fill"></i> Activar Cámara
+            </template>
+
+            <template v-else>
+              <div class="form-group">
+                <label class="form-label">Fecha:</label>
+                <input type="date" class="form-control" v-model="nuevoDefecto.fecha" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Línea:</label>
+                <select class="form-select" v-model="nuevoDefecto.linea" required>
+                  <option value="">Seleccione línea</option>
+                  <option v-for="linea in lineas" :key="linea" :value="linea">{{ linea }}</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Código de parte:</label>
+                <input type="text" class="form-control" :class="{ 'scanned': scannedCode }"
+                  v-model="nuevoDefecto.codigo" placeholder="Escanear o escribir" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Defecto:</label>
+                <input type="text" class="form-control" v-model="nuevoDefecto.defecto"
+                  placeholder="Descripción del defecto" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Ubicación:</label>
+                <input type="text" class="form-control" v-model="nuevoDefecto.ubicacion"
+                  placeholder="Ubicación del defecto" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Área:</label>
+                <select class="form-select" v-model="nuevoDefecto.area" required>
+                  <option value="">Seleccione área</option>
+                  <option v-for="area in areas" :key="area" :value="area">{{ area }}</option>
+                </select>
+              </div>
+            </template>
+
+            <button v-if="!esTablet" type="submit" class="btn-capture">
+              <i class="bi bi-save"></i>
+              Capturar (F1)
+            </button>
+          </form>
+        </div>
+
+        <!-- Botón flotante para captura manual en móvil -->
+        <button v-if="esMobile && !mostrarModalCapturaMobile" class="btn-float-capture" @click="mostrarModalCapturaMobile = true" title="Capturar defecto">
+          <i class="bi bi-plus-lg"></i>
+        </button>
+      </div>
+
+      <!-- Panel Derecho - Lista de Defectos -->
+      <div class="right-panel" :class="{ show: esMobile && mostrarSidebarMobile }">
+        <!-- Header -->
+        <div class="header">
+          <h1 class="header-title">Lista de defectos</h1>
+          <button class="btn-toggle-list" :class="{ collapsed: !mostrarListaDefectos }" @click="toggleListaDefectos"
+            :title="mostrarListaDefectos ? 'Ocultar lista' : 'Mostrar lista'">
+            <i class="bi bi-chevron-up"></i>
+          </button>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters-bar" :class="{ 'section-hidden': !mostrarListaDefectos }">
+          <div class="filter-item">
+            <label class="filter-label">Material ID</label>
+            <input type="text" class="filter-input" v-model="filtros.materialId" placeholder="Enter Material ID">
+          </div>
+
+          <div class="filter-item" v-if="!esTablet">
+            <label class="filter-label">Defect reason</label>
+            <select class="filter-input" v-model="filtros.defectReason">
+              <option value="">Select an option</option>
+              <option v-for="defecto in defectosComunes" :key="defecto" :value="defecto">
+                {{ defecto }}
+              </option>
+            </select>
+          </div>
+
+          <div class="filter-item">
+            <label class="filter-label">Status</label>
+            <select class="filter-input" v-model="filtros.status">
+              <option value="">Select an option</option>
+              <option value="Pendiente_Reparacion">New</option>
+              <option value="En_Reparacion">In Progress</option>
+              <option value="Reparado">Repaired</option>
+              <option value="Aprobado">Approved</option>
+            </select>
+          </div>
+
+          <div class="filter-item">
+            <label class="filter-label">From</label>
+            <input type="date" class="filter-input" v-model="filtros.fechaInicio">
+          </div>
+
+          <div class="filter-item">
+            <label class="filter-label">To</label>
+            <input type="date" class="filter-input" v-model="filtros.fechaFin">
+          </div>
+
+          <button class="btn-buscar" @click="cargarDefectos" title="Buscar defectos">
+            <i class="bi bi-search"></i>
+          </button>
+
+          <button class="btn-descargar" @click="descargarExcel" title="Exportar a Excel">
+            <i class="bi bi-download"></i>
+          </button>
+        </div>
+
+        <!-- Lista de Defectos -->
+        <div class="defects-container" :class="{ 'section-hidden': !mostrarListaDefectos }">
+          <div class="defects-table" v-if="defectosFiltrados.length > 0">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Línea</th>
+                  <th>Código</th>
+                  <th>Modelo</th>
+                  <th>Defecto</th>
+                  <th>Ubicación</th>
+                  <th>Área</th>
+                  <th>Capturista</th>
+                  <th>Hora</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(defecto, index) in defectosFiltrados" :key="defecto.id || index"
+                  @click="selectDefecto(defecto)">
+                  <td>{{ formatFechaSolo(defecto.fecha) }}</td>
+                  <td>{{ defecto.linea }}</td>
+                  <td>{{ defecto.codigo }}</td>
+                  <td>{{ defecto.modelo || 'N/A' }}</td>
+                  <td>{{ defecto.defecto }}</td>
+                  <td>{{ defecto.ubicacion }}</td>
+                  <td>{{ defecto.area }}</td>
+                  <td>{{ defecto.registrado_por || 'Sistema' }}</td>
+                  <td>{{ formatHora(defecto.fecha) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div v-else class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <p>No hay defectos registrados</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal de captura móvil -->
+      <div v-if="esMobile" class="mobile-capture-modal" :class="{ show: mostrarModalCapturaMobile }">
+        <div class="mobile-modal-header">
+          <h3 class="mobile-modal-title">Capturar Defecto</h3>
+          <button class="btn-close-modal" @click="cerrarModalCapturaMobile">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <div class="mobile-modal-body">
+          <!-- Información de fecha y código (solo lectura) -->
+          <div class="mobile-info-section">
+            <div class="mobile-info-item">
+              <span class="mobile-info-label">Fecha:</span>
+              <span class="mobile-info-value">{{ formatFechaSolo(nuevoDefecto.fecha) }}</span>
+            </div>
+            <div class="mobile-info-item">
+              <span class="mobile-info-label">Código de parte:</span>
+              <span class="mobile-info-value">{{ nuevoDefecto.codigo || 'Pendiente de escanear' }}</span>
+            </div>
+          </div>
+
+          <form id="mobile-capture-form" @submit.prevent="capturarDefecto">
+            <div class="mobile-form-group">
+              <label class="mobile-form-label">Línea:</label>
+              <div class="mobile-quick-grid">
+                <button type="button" class="mobile-quick-btn" 
+                  :class="{ active: nuevoDefecto.linea === linea }"
+                  v-for="linea in lineas" 
+                  :key="`mobile-linea-${linea}`" 
+                  @click="seleccionarLinea(linea)">
+                  {{ linea }}
                 </button>
               </div>
             </div>
-          </div>
-        </template>
-        <template v-else>
-          <!-- Vista de escritorio: Sin camera-frame (logo movido al header) -->
-        </template>
 
-        <div v-if="esTablet" class="tablet-side-panel">
-          <div class="tablet-quick-section">
-            <h4 class="tablet-section-title">Código de parte</h4>
-            <input 
-              type="text" 
-              class="form-control tablet-input" 
-              :class="{ 'scanned': scannedCode }"
-              v-model="nuevoDefecto.codigo"
-              placeholder="Escanea o escribe el código" 
-              required>
-          </div>
+            <div class="mobile-form-group">
+              <label class="mobile-form-label">Defecto:</label>
+              <div class="mobile-quick-grid">
+                <button type="button" class="mobile-quick-btn" 
+                  :class="{ active: nuevoDefecto.defecto === defecto }"
+                  v-for="defecto in defectosComunes" 
+                  :key="`mobile-defecto-${defecto}`"
+                  @click="seleccionarDefectoRapido(defecto)">
+                  {{ defecto }}
+                </button>
+              </div>
+            </div>
 
-          <div class="tablet-quick-section">
-            <h4 class="tablet-section-title">Fecha</h4>
-            <input 
-              type="date" 
-              class="form-control tablet-input" 
-              v-model="nuevoDefecto.fecha"
-              required>
-          </div>
+            <div class="mobile-form-group">
+              <label class="mobile-form-label">Ubicación:</label>
+              <input type="text" 
+                class="mobile-form-input" 
+                v-model="nuevoDefecto.ubicacion" 
+                placeholder="Ubicación del defecto" 
+                required>
+            </div>
+
+            <div class="mobile-form-group">
+              <label class="mobile-form-label">Área:</label>
+              <div class="mobile-quick-grid">
+                <button type="button" class="mobile-quick-btn" 
+                  :class="{ active: nuevoDefecto.area === area }"
+                  v-for="area in areas" 
+                  :key="`mobile-area-${area}`"
+                  @click="seleccionarArea(area)">
+                  {{ area }}
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
-      </div>
 
-      <!-- Formulario de Captura -->
-      <div class="form-section">
-        <form id="capture-form" @submit.prevent="capturarDefecto">
-          <template v-if="esTablet">
-            <div class="tablet-defecto-wrapper">
-              <div class="tablet-panel-header">
-                <h3 class="tablet-panel-title">Detalle del defecto</h3>
-              </div>
-              <div class="tablet-defecto-grid">
-                <div class="tablet-quick-section">
-                  <h4 class="tablet-section-title">Selecciona la línea</h4>
-                  <div class="tablet-grid">
-                    <button 
-                      type="button" 
-                      class="quick-btn" 
-                      :class="{ active: nuevoDefecto.linea === linea }"
-                      v-for="linea in lineas" 
-                      :key="`linea-${linea}`"
-                      @click="seleccionarLinea(linea)">
-                      {{ linea }}
-                    </button>
-                  </div>
-                </div>
-
-                <div class="tablet-quick-section">
-                  <h4 class="tablet-section-title">Defecto</h4>
-                  <div class="tablet-grid" v-if="defectosComunes.length">
-                    <button 
-                      type="button" 
-                      class="quick-btn pill" 
-                      :class="{ active: nuevoDefecto.defecto === defecto }"
-                      v-for="defecto in defectosComunes" 
-                      :key="`defecto-${defecto}`"
-                      @click="seleccionarDefectoRapido(defecto)">
-                      {{ defecto }}
-                    </button>
-                  </div>
-                </div>
-
-                <div class="tablet-quick-section">
-                  <h4 class="tablet-section-title">Ubicación</h4>
-                  <input 
-                    type="text" 
-                    class="form-control tablet-input" 
-                    v-model="nuevoDefecto.ubicacion"
-                    required>
-                </div>
-
-                <div class="tablet-quick-section">
-                  <h4 class="tablet-section-title">Área</h4>
-                  <div class="tablet-grid">
-                    <button 
-                      type="button" 
-                      class="quick-btn" 
-                      :class="{ active: nuevoDefecto.area === area }"
-                      v-for="area in areas" 
-                      :key="`area-${area}`"
-                      @click="seleccionarArea(area)">
-                      {{ area }}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </template>
-
-          <template v-else>
-            <div class="form-group">
-              <label class="form-label">Fecha:</label>
-              <input 
-                type="date" 
-                class="form-control" 
-                v-model="nuevoDefecto.fecha"
-                required>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Línea:</label>
-              <select class="form-select" v-model="nuevoDefecto.linea" required>
-                <option value="">Seleccione línea</option>
-                <option v-for="linea in lineas" :key="linea" :value="linea">{{ linea }}</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Código de parte:</label>
-              <input 
-                type="text" 
-                class="form-control" 
-                :class="{ 'scanned': scannedCode }"
-                v-model="nuevoDefecto.codigo"
-                placeholder="Escanear o escribir"
-                required>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Defecto:</label>
-              <input 
-                type="text" 
-                class="form-control" 
-                v-model="nuevoDefecto.defecto"
-                placeholder="Descripción del defecto"
-                required>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Ubicación:</label>
-              <input 
-                type="text" 
-                class="form-control" 
-                v-model="nuevoDefecto.ubicacion"
-                placeholder="Ubicación del defecto"
-                required>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Área:</label>
-              <select class="form-select" v-model="nuevoDefecto.area" required>
-                <option value="">Seleccione área</option>
-                <option v-for="area in areas" :key="area" :value="area">{{ area }}</option>
-              </select>
-            </div>
-          </template>
-
-          <button v-if="!esTablet" type="submit" class="btn-capture">
-            <i class="bi bi-save"></i>
-            Capturar (F1)
+        <div class="mobile-modal-footer">
+          <button type="button" class="btn-mobile-action btn-mobile-clear" @click="limpiarFormulario">
+            <i class="bi bi-arrow-counterclockwise"></i>
+            Limpiar
           </button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Panel Derecho - Lista de Defectos -->
-    <div class="right-panel">
-      <!-- Header -->
-      <div class="header">
-        <h1 class="header-title">Lista de defectos</h1>
-      </div>
-
-      <!-- Filtros -->
-      <div class="filters-bar">
-        <div class="filter-item">
-          <label class="filter-label">Material ID</label>
-          <input 
-            type="text" 
-            class="filter-input" 
-            v-model="filtros.materialId"
-            placeholder="Enter Material ID">
-        </div>
-
-        <div class="filter-item">
-          <label class="filter-label">Defect reason</label>
-          <select class="filter-input" v-model="filtros.defectReason">
-            <option value="">Select an option</option>
-            <option v-for="defecto in defectosComunes" :key="defecto" :value="defecto">
-              {{ defecto }}
-            </option>
-          </select>
-        </div>
-
-        <div class="filter-item">
-          <label class="filter-label">Status</label>
-          <select class="filter-input" v-model="filtros.status">
-            <option value="">Select an option</option>
-            <option value="Pendiente_Reparacion">New</option>
-            <option value="En_Reparacion">In Progress</option>
-            <option value="Reparado">Repaired</option>
-            <option value="Aprobado">Approved</option>
-          </select>
-        </div>
-
-        <div class="filter-item">
-          <label class="filter-label">From</label>
-          <input 
-            type="date" 
-            class="filter-input" 
-            v-model="filtros.fechaInicio">
-        </div>
-
-        <div class="filter-item">
-          <label class="filter-label">To</label>
-          <input 
-            type="date" 
-            class="filter-input" 
-            v-model="filtros.fechaFin">
-        </div>
-
-        <button class="btn-buscar" @click="cargarDefectos" title="Buscar defectos">
-          <i class="bi bi-search"></i>
-        </button>
-
-        <button class="btn-descargar" @click="descargarExcel" title="Exportar a Excel">
-          <i class="bi bi-download"></i>
-        </button>
-      </div>
-
-      <!-- Lista de Defectos -->
-      <div class="defects-container">
-        <div class="defects-table" v-if="defectosFiltrados.length > 0">
-          <table>
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Línea</th>
-                <th>Código</th>
-                <th>Modelo</th>
-                <th>Defecto</th>
-                <th>Ubicación</th>
-                <th>Área</th>
-                <th>Capturista</th>
-                <th>Hora</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr 
-                v-for="(defecto, index) in defectosFiltrados" 
-                :key="defecto.id || index"
-                @click="selectDefecto(defecto)">
-                <td>{{ formatFechaSolo(defecto.fecha) }}</td>
-                <td>{{ defecto.linea }}</td>
-                <td>{{ defecto.codigo }}</td>
-                <td>{{ defecto.modelo || 'N/A' }}</td>
-                <td>{{ defecto.defecto }}</td>
-                <td>{{ defecto.ubicacion }}</td>
-                <td>{{ defecto.area }}</td>
-                <td>{{ defecto.registrado_por || 'Sistema' }}</td>
-                <td>{{ formatHora(defecto.fecha) }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div v-else class="empty-state">
-          <i class="bi bi-inbox"></i>
-          <p>No hay defectos registrados</p>
+          <button type="submit" form="mobile-capture-form" class="btn-mobile-action btn-mobile-save">
+            <i class="bi bi-check-circle"></i>
+            Guardar
+          </button>
         </div>
       </div>
-    </div>
 
-    <!-- Modal de mensajes -->
-    <div class="modal fade" id="mensajeModal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header" :class="{'bg-success': mensajeModal.tipo === 'exito', 'bg-danger': mensajeModal.tipo === 'error'}">
-            <h5 class="modal-title text-white">{{ mensajeModal.titulo }}</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            {{ mensajeModal.mensaje }}
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      <!-- Modal de mensajes -->
+      <div class="modal fade" id="mensajeModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header"
+              :class="{'bg-success': mensajeModal.tipo === 'exito', 'bg-danger': mensajeModal.tipo === 'error'}">
+              <h5 class="modal-title text-white">{{ mensajeModal.titulo }}</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              {{ mensajeModal.mensaje }}
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </div><!-- Fin desktop-content-wrapper -->
   </div><!-- Fin main-container -->
 
@@ -1370,4 +2155,5 @@
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
   <script src="js/capture-app.js"></script>
 </body>
+
 </html>

@@ -39,7 +39,8 @@ body {
     margin: 0 auto;
 }
 
-.container, .container-fluid {
+.container,
+.container-fluid {
     padding-left: 1rem;
     padding-right: 1rem;
 }
@@ -178,12 +179,14 @@ body {
     background-color: #c0392b;
 }
 
-.btn-exportar, .btn-importar {
+.btn-exportar,
+.btn-importar {
     background-color: var(--ilsan-accent-green);
     color: white;
 }
 
-.btn-exportar:hover, .btn-importar:hover {
+.btn-exportar:hover,
+.btn-importar:hover {
     background-color: var(--ilsan-accent-green-light);
 }
 
@@ -363,7 +366,8 @@ body {
     margin-bottom: 0.5rem;
 }
 
-.form-control, .form-select {
+.form-control,
+.form-select {
     background-color: var(--ilsan-dark-primary);
     border: 1px solid var(--ilsan-border);
     color: var(--ilsan-text-light);
@@ -372,7 +376,8 @@ body {
     transition: all 0.3s ease;
 }
 
-.form-control:focus, .form-select:focus {
+.form-control:focus,
+.form-select:focus {
     background-color: var(--ilsan-dark-secondary);
     border-color: var(--ilsan-accent-blue);
     color: var(--ilsan-text-light);
@@ -646,7 +651,7 @@ body {
     margin-right: -0.75rem;
 }
 
-.row > * {
+.row>* {
     padding-left: 0.75rem;
     padding-right: 0.75rem;
 }

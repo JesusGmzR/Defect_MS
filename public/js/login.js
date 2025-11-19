@@ -113,11 +113,19 @@ async function login(username, password) {
         loadingSpinner.style.display = 'block';
         alertContainer.innerHTML = '';
 
+        // DEBUG: Log de la URL y datos
+        console.log('🔐 Intentando login...');
+        console.log('📍 API URL:', `${API_BASE_URL}/auth/login`);
+        console.log('👤 Username:', username);
+        console.log('🔑 Password length:', password.length);
+
         // Llamar a la API de login
         const response = await axios.post(`${API_BASE_URL}/auth/login`, {
             username: username,
             password: password
         });
+
+        console.log('✅ Respuesta recibida:', response.data);
 
         if (response.data.success) {
             const { token, user } = response.data;
@@ -136,17 +144,26 @@ async function login(username, password) {
         }
 
     } catch (error) {
-        console.error('Error en login:', error);
+        console.error('❌ Error completo:', error);
+        console.error('📋 Error response:', error.response);
+        console.error('📨 Error request:', error.request);
+        console.error('💬 Error message:', error.message);
         
         let errorMessage = 'Error al iniciar sesión. Por favor intenta nuevamente.';
         
         if (error.response) {
+            console.error('🔴 Status:', error.response.status);
+            console.error('🔴 Data:', error.response.data);
+            
             if (error.response.status === 401) {
                 errorMessage = 'Usuario o contraseña incorrectos';
+            } else if (error.response.data && error.response.data.error) {
+                errorMessage = error.response.data.error;
             } else if (error.response.data && error.response.data.message) {
                 errorMessage = error.response.data.message;
             }
         } else if (error.request) {
+            console.error('🔴 No response received');
             errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión.';
         }
 

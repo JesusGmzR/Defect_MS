@@ -47,6 +47,7 @@ createApp({
         tipo: 'exito'
       },
       esTablet: window.innerWidth <= 1200,
+      esMobile: window.innerWidth < 768,
       showManualCodigo: false,
       // Escáner QR
       html5QrCode: null,
@@ -58,13 +59,40 @@ createApp({
       cameraReady: false,
       cameraInitializing: false,
       cameraStatus: 'Presiona el botón para activar la cámara',
-      selectedDefecto: null
+      selectedDefecto: null,
+      // Usuario dropdown
+      showUserDropdown: false,
+      nombreUsuario: '',
+      rolUsuario: '',
+      // Toggle lista de defectos
+      mostrarListaDefectos: false,
+      // Móvil
+      mostrarSidebarMobile: false,
+      mostrarModalCapturaMobile: false
     }
   },
   mounted() {
     this.cargarDefectos();
     this.handleResize();
     window.addEventListener('resize', this.handleResize);
+    
+    // Inicializar estado de lista según el tamaño de pantalla
+    this.mostrarListaDefectos = window.innerWidth > 1200;
+    
+    // Cargar información del usuario desde localStorage
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      const user = JSON.parse(userData);
+      this.nombreUsuario = user.nombre_completo || user.username;
+      this.rolUsuario = user.rol;
+    }
+    
+    // Cerrar dropdown al hacer clic fuera
+    document.addEventListener('click', () => {
+      if (this.showUserDropdown) {
+        this.showUserDropdown = false;
+      }
+    });
     
     // Atajo de teclado F1 para capturar
     document.addEventListener('keydown', (e) => {
@@ -131,8 +159,30 @@ createApp({
     }
   },
   methods: {
+    // User dropdown methods
+    toggleUserDropdown() {
+      console.log('🔄 Toggle dropdown:', !this.showUserDropdown);
+      this.showUserDropdown = !this.showUserDropdown;
+    },
+    closeUserDropdown() {
+      console.log('❌ Cerrando dropdown');
+      this.showUserDropdown = false;
+    },
+    cerrarSesion() {
+      console.log('🚪 Cerrando sesión');
+      // Limpiar localStorage
+      localStorage.removeItem('token');
+      localStorage.removeItem('userData');
+      // Redirigir al login
+      window.location.href = 'index.html';
+    },
+    toggleListaDefectos() {
+      console.log('📋 Toggle lista defectos:', !this.mostrarListaDefectos);
+      this.mostrarListaDefectos = !this.mostrarListaDefectos;
+    },
     handleResize() {
       this.esTablet = window.innerWidth <= 1200;
+      this.esMobile = window.innerWidth < 768;
     },
     async cargarDefectos() {
       try {
@@ -218,6 +268,11 @@ createApp({
           this.mostrarMensaje('Éxito', 'Defecto capturado correctamente', 'exito');
           this.limpiarFormulario();
           this.cargarDefectos();
+          
+          // Cerrar modal móvil después de capturar
+          if (this.esMobile) {
+            this.mostrarModalCapturaMobile = false;
+          }
         }
       } catch (error) {
         console.error('Error al capturar defecto:', error);
@@ -236,6 +291,11 @@ createApp({
       this.nuevoDefecto.fecha = getLocalISODate();
       this.scannedCode = null;
       this.showManualCodigo = false;
+      
+      // Cerrar modal móvil al limpiar
+      if (this.esMobile) {
+        this.mostrarModalCapturaMobile = false;
+      }
     },
     
     formatFecha(fechaStr) {
@@ -469,10 +529,28 @@ createApp({
       // Aplicar automáticamente al campo código
       this.nuevoDefecto.codigo = this.scannedCode;
       
+      // En móvil, abrir modal de captura automáticamente
+      if (this.esMobile) {
+        this.mostrarModalCapturaMobile = true;
+      }
+      
       // Limpiar después de 3 segundos
       setTimeout(() => {
         this.scannedCode = null;
       }, 3000);
+    },
+    
+    // ===== FUNCIONES MÓVILES =====
+    toggleSidebarMobile() {
+      this.mostrarSidebarMobile = !this.mostrarSidebarMobile;
+    },
+    
+    closeSidebarMobile() {
+      this.mostrarSidebarMobile = false;
+    },
+    
+    cerrarModalCapturaMobile() {
+      this.mostrarModalCapturaMobile = false;
     },
     
     async switchCamera() {
