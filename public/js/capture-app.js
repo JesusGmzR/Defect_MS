@@ -68,7 +68,12 @@ createApp({
       mostrarListaDefectos: false,
       // Móvil
       mostrarSidebarMobile: false,
-      mostrarModalCapturaMobile: false
+      mostrarModalCapturaMobile: false,
+      // Zoom control
+      zoomLevel: 1,
+      minZoom: 1,
+      maxZoom: 3,
+      videoTrack: null
     }
   },
   mounted() {
@@ -508,6 +513,25 @@ createApp({
             // Error de escaneo continuo (normal)
           }
         );
+        
+        // Capturar el videoTrack después de iniciar el stream
+        await this.$nextTick();
+        setTimeout(() => {
+          try {
+            const videoElement = document.querySelector('#qr-reader video');
+            if (videoElement && videoElement.srcObject) {
+              const stream = videoElement.srcObject;
+              const tracks = stream.getVideoTracks();
+              if (tracks.length > 0) {
+                this.videoTrack = tracks[0];
+                console.log('✓ VideoTrack capturado para zoom');
+              }
+            }
+          } catch (err) {
+            console.warn('No se pudo capturar videoTrack:', err);
+          }
+        }, 500);
+        
       } catch (error) {
         console.error('Error al iniciar escaneo:', error);
         throw error;
@@ -560,6 +584,7 @@ createApp({
         
         if (this.html5QrCode && this.html5QrCode.isScanning) {
           await this.html5QrCode.stop();
+          this.videoTrack = null; // Limpiar track al cambiar cámara
         }
         
         const currentIndex = this.availableCameras.findIndex(c => c.id === this.currentCameraId);
@@ -569,6 +594,44 @@ createApp({
         await this.iniciarEscaneo();
       } catch (error) {
         console.error('Error al cambiar cámara:', error);
+      }
+    },
+    
+    // Métodos de zoom
+    async applyZoom() {
+      try {
+        if (!this.videoTrack) {
+          const videoElement = document.querySelector('#qr-reader video');
+          if (videoElement && videoElement.srcObject) {
+            const stream = videoElement.srcObject;
+            this.videoTrack = stream.getVideoTracks()[0];
+          }
+        }
+        
+        if (this.videoTrack) {
+          const capabilities = this.videoTrack.getCapabilities();
+          if (capabilities.zoom) {
+            await this.videoTrack.applyConstraints({
+              advanced: [{ zoom: this.zoomLevel }]
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error aplicando zoom:', error);
+      }
+    },
+    
+    increaseZoom() {
+      if (this.zoomLevel < this.maxZoom) {
+        this.zoomLevel = Math.min(this.maxZoom, this.zoomLevel + 0.5);
+        this.applyZoom();
+      }
+    },
+    
+    decreaseZoom() {
+      if (this.zoomLevel > this.minZoom) {
+        this.zoomLevel = Math.max(this.minZoom, this.zoomLevel - 0.5);
+        this.applyZoom();
       }
     }
   }

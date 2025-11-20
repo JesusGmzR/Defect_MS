@@ -1225,7 +1225,7 @@
       .desktop-content-wrapper {
         display: flex;
         flex-direction: column;
-        height: 100%;
+        flex: 1;
         overflow: hidden;
       }
 
@@ -1312,21 +1312,23 @@
       /* Panel izquierdo - Cámara QR a pantalla completa */
       .left-panel {
         width: 100%;
-        height: 100%;
+        flex: 1;
         border: none;
         display: flex;
         flex-direction: column;
         background: var(--ilsan-dark-primary);
         padding: 0;
-        overflow: hidden;
+        overflow-y: auto;
+        overflow-x: hidden;
+        min-height: 0;
       }
 
       .scanner-section {
-        flex: 1;
         display: flex;
         flex-direction: column;
         border: none;
         padding: 12px;
+        flex-shrink: 0;
       }
 
       .scanner-title {
@@ -1334,16 +1336,26 @@
       }
 
       .camera-frame {
-        flex: 1;
-        aspect-ratio: auto;
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1/1 !important;
+        max-height: 60vh;
         border-radius: 12px;
         border: 2px solid var(--ilsan-accent-blue);
+        background: var(--ilsan-dark-secondary);
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
       }
 
       .camera-container {
         width: 100%;
         height: 100%;
         border-radius: 10px;
+        border: none;
+        margin: 0;
       }
 
       #qr-reader {
@@ -1378,6 +1390,101 @@
 
       .btn-switch-camera i {
         font-size: 24px !important;
+      }
+
+      /* Control de zoom móvil */
+      .mobile-zoom-control {
+        position: fixed;
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 48px);
+        max-width: 400px;
+        padding: 12px 16px;
+        background: var(--ilsan-dark-secondary);
+        border-radius: 12px;
+        z-index: 999;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--ilsan-border);
+      }
+
+      .zoom-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        color: var(--ilsan-text-light);
+        font-size: 13px !important;
+        font-weight: 600 !important;
+      }
+
+      .zoom-value {
+        color: var(--ilsan-accent-blue);
+        font-weight: 700 !important;
+        font-size: 16px !important;
+      }
+
+      .zoom-slider-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .zoom-btn {
+        background: var(--ilsan-dark-primary);
+        border: 1px solid var(--ilsan-border);
+        color: var(--ilsan-text-light);
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+      }
+
+      .zoom-btn:active {
+        background: var(--ilsan-hover);
+        transform: scale(0.95);
+      }
+
+      .zoom-btn i {
+        font-size: 20px !important;
+      }
+
+      .zoom-slider {
+        flex: 1;
+        -webkit-appearance: none;
+        appearance: none;
+        height: 6px;
+        border-radius: 3px;
+        background: var(--ilsan-dark-primary);
+        outline: none;
+        border: 1px solid var(--ilsan-border);
+      }
+
+      .zoom-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--ilsan-accent-blue);
+        cursor: pointer;
+        border: 3px solid var(--ilsan-dark-secondary);
+        box-shadow: 0 2px 8px rgba(52, 152, 219, 0.4);
+      }
+
+      .zoom-slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--ilsan-accent-blue);
+        cursor: pointer;
+        border: 3px solid var(--ilsan-dark-secondary);
+        box-shadow: 0 2px 8px rgba(52, 152, 219, 0.4);
       }
 
       /* Ocultar formulario en móvil (se usa modal) */
@@ -1481,7 +1588,7 @@
         bottom: -100%;
         left: 0;
         width: 100%;
-        max-height: 80vh;
+        max-height: 90vh;
         background: var(--ilsan-dark-secondary);
         z-index: 2001;
         transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1489,6 +1596,7 @@
         box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
         display: flex;
         flex-direction: column;
+        overflow: hidden;
       }
 
       .mobile-capture-modal.show {
@@ -1791,9 +1899,9 @@
           <div v-if="esTablet" class="tablet-panel-header">
             <h3 class="tablet-panel-title">Detalle del producto</h3>
           </div>
-          <h3 v-else class="header-title header">Detalle del producto</h3>
+          <h3 v-else-if="!esMobile" class="header-title header">Detalle del producto</h3>
 
-          <template v-if="esTablet">
+          <template v-if="esTablet || esMobile">
             <div class="camera-frame">
               <div v-if="cameraReady" class="camera-container">
                 <div id="qr-reader"></div>
@@ -1827,7 +1935,7 @@
             <!-- Vista de escritorio: Sin camera-frame (logo movido al header) -->
           </template>
 
-          <div v-if="esTablet" class="tablet-side-panel">
+          <div v-if="esTablet && !esMobile" class="tablet-side-panel">
             <div class="tablet-quick-section">
               <h4 class="tablet-section-title">Código de parte</h4>
               <input type="text" class="form-control tablet-input" :class="{ 'scanned': scannedCode }"
@@ -1941,6 +2049,30 @@
         <button v-if="esMobile && !mostrarModalCapturaMobile" class="btn-float-capture" @click="mostrarModalCapturaMobile = true" title="Capturar defecto">
           <i class="bi bi-plus-lg"></i>
         </button>
+      </div>
+
+      <!-- Control de zoom para móvil (posición fija) -->
+      <div v-if="esMobile && cameraReady" class="mobile-zoom-control">
+        <div class="zoom-label">
+          <span>Zoom</span>
+          <span class="zoom-value">{{ zoomLevel.toFixed(1) }}x</span>
+        </div>
+        <div class="zoom-slider-container">
+          <button class="zoom-btn" @click="decreaseZoom" :disabled="zoomLevel <= minZoom">
+            <i class="bi bi-dash-lg"></i>
+          </button>
+          <input 
+            type="range" 
+            class="zoom-slider" 
+            v-model.number="zoomLevel"
+            :min="minZoom"
+            :max="maxZoom"
+            step="0.1"
+            @input="applyZoom">
+          <button class="zoom-btn" @click="increaseZoom" :disabled="zoomLevel >= maxZoom">
+            <i class="bi bi-plus-lg"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Panel Derecho - Lista de Defectos -->
