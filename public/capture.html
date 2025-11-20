@@ -1311,7 +1311,7 @@
 
       /* Panel izquierdo - Cámara QR a pantalla completa */
       .left-panel {
-        width: 100%;
+        width: 90%;
         flex: 1;
         border: none;
         display: flex;
@@ -1321,6 +1321,7 @@
         overflow-y: auto;
         overflow-x: hidden;
         min-height: 0;
+        margin: 0 auto;
       }
 
       .scanner-section {
@@ -1339,7 +1340,9 @@
         position: relative;
         width: 100%;
         aspect-ratio: 1/1 !important;
-        max-height: 60vh;
+        max-width: 90vw;
+        max-height: 90vw;
+        margin: 0 auto;
         border-radius: 12px;
         border: 2px solid var(--ilsan-accent-blue);
         background: var(--ilsan-dark-secondary);
