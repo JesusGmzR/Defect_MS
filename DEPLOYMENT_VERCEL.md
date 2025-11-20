@@ -33,8 +33,8 @@ Ve a tu proyecto en Vercel → Settings → Environment Variables y agrega:
 ```
 DB_HOST=up-de-fra1-mysql-1.db.run-on-seenode.com
 DB_PORT=11550
-DB_USER=uffdzzhyskzg
-DB_PASSWORD=mVhVKjy0A4i0Bc6FoD9C
+DB_USER=db_rrpq0erbdujn
+DB_PASSWORD=5fUNbSRcPP3LN9K2I33Pr0ge
 DB_NAME=db_rrpq0erbdujn
 JWT_SECRET=defect_ms_jwt_secret_key_2025_change_in_production
 PORT=3000

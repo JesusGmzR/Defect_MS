@@ -157,14 +157,20 @@ async function login(username, password) {
             
             if (error.response.status === 401) {
                 errorMessage = 'Usuario o contraseña incorrectos';
+            } else if (error.response.status === 500) {
+                errorMessage = 'Error en el servidor. Por favor contacta al administrador.';
             } else if (error.response.data && error.response.data.error) {
                 errorMessage = error.response.data.error;
             } else if (error.response.data && error.response.data.message) {
                 errorMessage = error.response.data.message;
+            } else if (typeof error.response.data === 'string') {
+                errorMessage = error.response.data;
             }
         } else if (error.request) {
             console.error('🔴 No response received');
-            errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión.';
+            errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión o contacta al administrador.';
+        } else if (error.message) {
+            errorMessage = error.message;
         }
 
         showAlert(errorMessage, 'danger');
