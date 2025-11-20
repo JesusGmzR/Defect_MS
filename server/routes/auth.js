@@ -4,6 +4,11 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../database/db');
 
+// Verificar que db está correctamente importado
+console.log('[AUTH] DB type:', typeof db);
+console.log('[AUTH] DB has execute?', typeof db?.execute === 'function');
+console.log('[AUTH] DB keys:', db ? Object.keys(db).slice(0, 5) : 'null');
+
 // Login
 router.post('/login', async (req, res) => {
   try {

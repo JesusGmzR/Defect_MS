@@ -38,4 +38,8 @@ const testConnection = async () => {
 // Ejecutar test de conexión al iniciar
 testConnection();
 
+// Verificar que pool tiene el método execute
+console.log('[DB] Pool type:', typeof pool);
+console.log('[DB] Pool has execute?', typeof pool.execute === 'function');
+
 module.exports = pool;
