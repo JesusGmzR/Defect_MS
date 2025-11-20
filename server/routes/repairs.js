@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../database/db');
+const dbModule = require('../database/db'); const pool = dbModule.default || dbModule;
 const { verificarToken, verificarTecnico } = require('../middleware/auth');
 
 // Obtener lista de defectos pendientes de reparación
 router.get('/pendientes', verificarToken, async (req, res) => {
   try {
     const query = 'SELECT * FROM vw_pendientes_reparacion_dms';
-    const [rows] = await db.execute(query);
+    const [rows] = await pool.execute(query);
     
     res.json(rows);
   } catch (error) {
@@ -23,7 +23,7 @@ router.get('/pendientes', verificarToken, async (req, res) => {
 router.get('/en-proceso', verificarToken, async (req, res) => {
   try {
     const query = 'SELECT * FROM vw_en_reparacion_dms';
-    const [rows] = await db.execute(query);
+    const [rows] = await pool.execute(query);
     
     res.json(rows);
   } catch (error) {
@@ -46,7 +46,7 @@ router.post('/iniciar', verificarToken, verificarTecnico, async (req, res) => {
     }
     
     // Verificar que el defecto existe y está pendiente
-    const [defectRows] = await db.execute(
+    const [defectRows] = await pool.execute(
       'SELECT * FROM defect_data WHERE id = ?',
       [defect_id]
     );
@@ -63,7 +63,7 @@ router.post('/iniciar', verificarToken, verificarTecnico, async (req, res) => {
     }
     
     // Llamar al procedimiento almacenado
-    const [result] = await db.execute(
+    const [result] = await pool.execute(
       'CALL sp_iniciar_reparacion(?, ?)',
       [defect_id, tecnico]
     );
@@ -113,7 +113,7 @@ router.put('/:repair_id/progreso', verificarToken, verificarTecnico, async (req,
     params.push(repair_id);
     
     const query = `UPDATE repair_data SET ${updates.join(', ')} WHERE id = ?`;
-    const [result] = await db.execute(query, params);
+    const [result] = await pool.execute(query, params);
     
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'Reparación no encontrada' });
@@ -143,7 +143,7 @@ router.post('/:repair_id/finalizar', verificarToken, verificarTecnico, async (re
     }
     
     // Verificar que la reparación existe y está en proceso
-    const [repairRows] = await db.execute(
+    const [repairRows] = await pool.execute(
       `SELECT r.*, d.status 
        FROM repair_data r 
        JOIN defect_data d ON r.defect_id = d.id 
@@ -163,7 +163,7 @@ router.post('/:repair_id/finalizar', verificarToken, verificarTecnico, async (re
     }
     
     // Llamar al procedimiento almacenado
-    await db.execute(
+    await pool.execute(
       'CALL sp_finalizar_reparacion(?, ?, ?, ?)',
       [repair_id, accion_correctiva, materiales_usados || null, observaciones || null]
     );
@@ -194,7 +194,7 @@ router.get('/defecto/:defect_id', verificarToken, async (req, res) => {
       ORDER BY r.fecha_recepcion DESC
     `;
     
-    const [rows] = await db.execute(query, [defect_id]);
+    const [rows] = await pool.execute(query, [defect_id]);
     
     res.json(rows);
   } catch (error) {
@@ -225,7 +225,7 @@ router.get('/estadisticas/tecnicos', verificarToken, async (req, res) => {
       ORDER BY reparaciones_realizadas DESC
     `;
     
-    const [rows] = await db.execute(query, [parseInt(dias)]);
+    const [rows] = await pool.execute(query, [parseInt(dias)]);
     
     res.json(rows);
   } catch (error) {
@@ -238,3 +238,4 @@ router.get('/estadisticas/tecnicos', verificarToken, async (req, res) => {
 });
 
 module.exports = router;
+

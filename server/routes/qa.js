@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../database/db');
+const dbModule = require('../database/db'); const pool = dbModule.default || dbModule;
 const { verificarToken, verificarInspectorQA } = require('../middleware/auth');
 
 // Obtener productos pendientes de validación QA
 router.get('/pendientes', verificarToken, verificarInspectorQA, async (req, res) => {
   try {
     const query = 'SELECT * FROM vw_pendientes_validacion_qa_dms';
-    const [rows] = await db.execute(query);
+    const [rows] = await pool.execute(query);
     
     res.json(rows);
   } catch (error) {
@@ -230,7 +230,7 @@ router.get('/historial', verificarToken, async (req, res) => {
     
     query += ' ORDER BY r.fecha_inspeccion_qa DESC';
     
-    const [rows] = await db.execute(query, params);
+    const [rows] = await pool.execute(query, params);
     
     res.json(rows);
   } catch (error) {
@@ -261,7 +261,7 @@ router.get('/estadisticas', verificarToken, async (req, res) => {
       ORDER BY total_inspecciones DESC
     `;
     
-    const [rows] = await db.execute(query, [parseInt(dias)]);
+    const [rows] = await pool.execute(query, [parseInt(dias)]);
     
     res.json(rows);
   } catch (error) {
@@ -274,3 +274,4 @@ router.get('/estadisticas', verificarToken, async (req, res) => {
 });
 
 module.exports = router;
+

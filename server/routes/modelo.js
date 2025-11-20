@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../database/db');
+const dbModule = require('../database/db'); const pool = dbModule.default || dbModule;
 
 // Buscar modelo por código
 router.get('/', async (req, res) => {
@@ -24,7 +24,7 @@ router.get('/', async (req, res) => {
       LIMIT 1
     `;
     
-    const [rows] = await db.execute(query, [`${codigoBusqueda}%`]);
+    const [rows] = await pool.execute(query, [`${codigoBusqueda}%`]);
     
     const modelo = rows.length > 0 ? rows[0].modelo : '';
     

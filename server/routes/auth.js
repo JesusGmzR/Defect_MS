@@ -2,12 +2,14 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const db = require('../database/db');
+const dbModule = require('../database/db');
 
-// Verificar que db está correctamente importado
-console.log('[AUTH] DB type:', typeof db);
-console.log('[AUTH] DB has execute?', typeof db?.execute === 'function');
-console.log('[AUTH] DB keys:', db ? Object.keys(db).slice(0, 5) : 'null');
+// Manejar tanto CommonJS como ES Modules
+const pool = dbModule.default || dbModule;
+
+// Verificar que pool está correctamente importado
+console.log('[AUTH] Pool type:', typeof pool);
+console.log('[AUTH] Pool has execute?', typeof pool?.execute === 'function');
 
 // Login
 router.post('/login', async (req, res) => {
@@ -24,7 +26,7 @@ router.post('/login', async (req, res) => {
     console.log('📊 Connecting to database...');
     // Buscar usuario
     const query = 'SELECT * FROM usuarios_dms WHERE username = ? AND activo = TRUE';
-    const [rows] = await db.execute(query, [username]);
+    const [rows] = await pool.execute(query, [username]);
     
     console.log('📊 Query result:', rows.length, 'users found');
     
@@ -47,7 +49,7 @@ router.post('/login', async (req, res) => {
     }
     
     // Actualizar último acceso
-    await db.execute(
+    await pool.execute(
       'UPDATE usuarios_dms SET ultimo_acceso = NOW() WHERE id = ?',
       [user.id]
     );
@@ -107,7 +109,7 @@ router.get('/verify', async (req, res) => {
     
     // Verificar que el usuario siga activo
     const query = 'SELECT id, username, nombre_completo, rol, area FROM usuarios_dms WHERE id = ? AND activo = TRUE';
-    const [rows] = await db.execute(query, [decoded.id]);
+    const [rows] = await pool.execute(query, [decoded.id]);
     
     if (rows.length === 0) {
       return res.status(401).json({ error: 'Usuario no válido' });
@@ -158,7 +160,7 @@ router.post('/change-password', async (req, res) => {
     }
     
     // Obtener usuario
-    const [rows] = await db.execute(
+    const [rows] = await pool.execute(
       'SELECT password_hash FROM usuarios_dms WHERE id = ?',
       [decoded.id]
     );
@@ -178,7 +180,7 @@ router.post('/change-password', async (req, res) => {
     const newHash = await bcrypt.hash(newPassword, 10);
     
     // Actualizar contraseña
-    await db.execute(
+    await pool.execute(
       'UPDATE usuarios_dms SET password_hash = ? WHERE id = ?',
       [newHash, decoded.id]
     );
@@ -215,7 +217,7 @@ router.get('/profile', async (req, res) => {
       FROM usuarios_dms 
       WHERE id = ? AND activo = TRUE
     `;
-    const [rows] = await db.execute(query, [decoded.id]);
+    const [rows] = await pool.execute(query, [decoded.id]);
     
     if (rows.length === 0) {
       return res.status(404).json({ error: 'Usuario no encontrado' });

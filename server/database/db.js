@@ -19,7 +19,10 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0,
   enableKeepAlive: true,
-  keepAliveInitialDelay: 0
+  keepAliveInitialDelay: 0,
+  connectTimeout: 60000, // 60 segundos
+  acquireTimeout: 60000, // 60 segundos
+  timeout: 60000 // 60 segundos
 });
 
 // Verificar conexión

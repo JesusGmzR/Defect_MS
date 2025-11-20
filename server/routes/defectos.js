@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../database/db');
+const dbModule = require('../database/db'); const pool = dbModule.default || dbModule;
 
 // Registrar nuevo defecto
 router.post('/', async (req, res) => {
@@ -60,7 +60,7 @@ router.post('/', async (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
-    await db.execute(query, [
+    await pool.execute(query, [
       id, fechaRegistro, linea, codigo, defecto, ubicacion, area, modelo || '',
       tipo_inspeccion, etapa_deteccion, registrado_por
     ]);
@@ -157,7 +157,7 @@ router.get('/', async (req, res) => {
     console.log('📝 Query:', query);
     console.log('📝 Params:', params);
     
-    const [rows] = await db.execute(query, params);
+    const [rows] = await pool.execute(query, params);
     
     console.log('✅ Resultados encontrados:', rows.length);
     
@@ -177,7 +177,7 @@ router.get('/:id', async (req, res) => {
     const { id } = req.params;
     
     const query = 'SELECT * FROM defect_data WHERE id = ?';
-    const [rows] = await db.execute(query, [id]);
+    const [rows] = await pool.execute(query, [id]);
     
     if (rows.length === 0) {
       return res.status(404).json({ error: 'Defecto no encontrado' });
@@ -205,7 +205,7 @@ router.put('/:id/status', async (req, res) => {
     }
     
     const query = 'UPDATE defect_data SET status = ? WHERE id = ?';
-    const [result] = await db.execute(query, [status, id]);
+    const [result] = await pool.execute(query, [status, id]);
     
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'Defecto no encontrado' });
