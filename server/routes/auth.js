@@ -7,27 +7,37 @@ const db = require('../database/db');
 // Login
 router.post('/login', async (req, res) => {
   try {
+    console.log('🔐 Login attempt:', { username: req.body.username });
     const { username, password } = req.body;
     
     // Validar campos
     if (!username || !password) {
+      console.log('❌ Missing credentials');
       return res.status(400).json({ error: 'Usuario y contraseña son requeridos' });
     }
     
+    console.log('📊 Connecting to database...');
     // Buscar usuario
     const query = 'SELECT * FROM usuarios_dms WHERE username = ? AND activo = TRUE';
     const [rows] = await db.execute(query, [username]);
     
+    console.log('📊 Query result:', rows.length, 'users found');
+    
     if (rows.length === 0) {
+      console.log('❌ User not found or inactive');
       return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
     }
     
     const user = rows[0];
+    console.log('✅ User found:', user.username);
     
     // Verificar contraseña
     const isValidPassword = await bcrypt.compare(password, user.password_hash);
     
+    console.log('🔑 Password valid:', isValidPassword);
+    
     if (!isValidPassword) {
+      console.log('❌ Invalid password');
       return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
     }
     
@@ -60,8 +70,15 @@ router.post('/login', async (req, res) => {
         area: user.area
       }
     });
+    console.log('✅ Login successful');
   } catch (error) {
-    console.error('Error en login:', error);
+    console.error('❌ Login error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      errno: error.errno,
+      sql: error.sql
+    });
     res.status(500).json({ 
       error: 'Error al iniciar sesión', 
       details: error.message 
