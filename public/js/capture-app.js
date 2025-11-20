@@ -77,7 +77,8 @@ createApp({
     window.addEventListener('resize', this.handleResize);
     
     // Inicializar estado de lista según el tamaño de pantalla
-    this.mostrarListaDefectos = window.innerWidth > 1200;
+    // Desktop y Tablet: visible, Móvil: oculta (no se usa el toggle en móvil)
+    this.mostrarListaDefectos = window.innerWidth >= 768;
     
     // Cargar información del usuario desde localStorage
     const userData = localStorage.getItem('userData');

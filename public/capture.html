@@ -192,7 +192,7 @@
       }
     }
 
-    @media (max-width: 1200px) {
+    @media (min-width: 768px) and (max-width: 1200px) {
       .btn-toggle-list {
         display: flex !important;
       }
@@ -1416,7 +1416,7 @@
       }
 
       .btn-toggle-list {
-        display: flex !important;
+        display: none !important;
       }
 
       .filters-bar {
@@ -1785,7 +1785,7 @@
     <!-- Contenedor de contenido -->
     <div class="desktop-content-wrapper">
       <!-- Panel Izquierdo - Captura -->
-      <div class="left-panel" :class="{ collapsed: esTablet && mostrarListaDefectos }">
+      <div class="left-panel" :class="{ collapsed: esTablet && mostrarListaDefectos && !esMobile }">
         <!-- Sección de Escáner -->
         <div class="scanner-section">
           <div v-if="esTablet" class="tablet-panel-header">
@@ -1948,14 +1948,14 @@
         <!-- Header -->
         <div class="header">
           <h1 class="header-title">Lista de defectos</h1>
-          <button class="btn-toggle-list" :class="{ collapsed: !mostrarListaDefectos }" @click="toggleListaDefectos"
+          <button v-if="esTablet && !esMobile" class="btn-toggle-list" :class="{ collapsed: !mostrarListaDefectos }" @click="toggleListaDefectos"
             :title="mostrarListaDefectos ? 'Ocultar lista' : 'Mostrar lista'">
             <i class="bi bi-chevron-up"></i>
           </button>
         </div>
 
         <!-- Filtros -->
-        <div class="filters-bar" :class="{ 'section-hidden': !mostrarListaDefectos }">
+        <div class="filters-bar" :class="{ 'section-hidden': esTablet && !esMobile && !mostrarListaDefectos }">
           <div class="filter-item">
             <label class="filter-label">Material ID</label>
             <input type="text" class="filter-input" v-model="filtros.materialId" placeholder="Enter Material ID">
@@ -2002,7 +2002,7 @@
         </div>
 
         <!-- Lista de Defectos -->
-        <div class="defects-container" :class="{ 'section-hidden': !mostrarListaDefectos }">
+        <div class="defects-container" :class="{ 'section-hidden': esTablet && !esMobile && !mostrarListaDefectos }">
           <div class="defects-table" v-if="defectosFiltrados.length > 0">
             <table>
               <thead>
