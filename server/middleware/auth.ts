@@ -57,7 +57,7 @@ export const verificarTecnico = (
     return;
   }
   
-  if (req.user.rol !== 'Tecnico_Reparacion' && req.user.rol !== 'Admin') {
+  if (req.user.rol !== 'Tecnico_Reparacion' && req.user.rol !== 'Admin_Reparacion' && req.user.rol !== 'Admin') {
     res.status(403).json({ 
       error: 'Acceso denegado. Se requiere rol de Técnico de Reparación o Admin',
       current_role: req.user.rol
@@ -81,7 +81,7 @@ export const verificarInspectorQA = (
     return;
   }
   
-  if (req.user.rol !== 'Inspector_QA' && req.user.rol !== 'Admin') {
+  if (req.user.rol !== 'Inspector_QA' && req.user.rol !== 'Admin_Calidad' && req.user.rol !== 'Admin') {
     res.status(403).json({ 
       error: 'Acceso denegado. Se requiere rol de Inspector QA o Admin',
       current_role: req.user.rol
@@ -105,7 +105,7 @@ export const verificarInspector = (
     return;
   }
   
-  const rolesPermitidos = ['Inspector_LQC', 'Inspector_OQC', 'Admin'];
+  const rolesPermitidos = ['Inspector_LQC', 'Inspector_OQC', 'Admin_Calidad', 'Admin'];
   
   if (!rolesPermitidos.includes(req.user.rol)) {
     res.status(403).json({ 
@@ -131,7 +131,9 @@ export const verificarAdmin = (
     return;
   }
   
-  if (req.user.rol !== 'Admin') {
+  const adminRoles = ['Admin', 'Admin_Calidad', 'Admin_Reparacion'];
+  
+  if (!adminRoles.includes(req.user.rol)) {
     res.status(403).json({ 
       error: 'Acceso denegado. Se requiere rol de Administrador',
       current_role: req.user.rol

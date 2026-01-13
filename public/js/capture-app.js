@@ -1,10 +1,81 @@
 const { createApp } = Vue;
 
-// Utilidad para obtener la fecha local en formato YYYY-MM-DD sin desplazamiento por zona horaria
-const getLocalISODate = () => {
-  const date = new Date();
-  date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
-  return date.toISOString().slice(0, 10);
+// Zona horaria fija: Monterrey, México
+const MX_TIMEZONE = 'America/Monterrey';
+
+// Catálogo oficial de defectos con su código
+const DEFECTOS_CATALOGO = [
+  { nombre: 'AL REVES', codigo: 'AR' },
+  { nombre: 'BOTON DURO', codigo: 'BD' },
+  { nombre: 'COMPONENTE EXTRA', codigo: 'CE' },
+  { nombre: 'CONTAMINADO', codigo: 'CT' },
+  { nombre: 'CORTO', codigo: 'CO' },
+  { nombre: 'DAÑADO', codigo: 'DA' },
+  { nombre: 'DESALINEADO', codigo: 'DE' },
+  { nombre: 'ETIQUETA EQUIVOCADA', codigo: 'EEQ' },
+  { nombre: 'EXCESO DE COATING', codigo: 'EC' },
+  { nombre: 'EXCESO SOLDADURA', codigo: 'ES' },
+  { nombre: 'FALTANTE', codigo: 'FA' },
+  { nombre: 'FALTANTE DE COATING', codigo: 'FC' },
+  { nombre: 'FALTANTE SOLDADURA', codigo: 'FS' },
+  { nombre: 'FLUX', codigo: 'FX' },
+  { nombre: 'INVERTIDO', codigo: 'INV' },
+  { nombre: 'LED AMARILLO', codigo: 'LA' },
+  { nombre: 'LEVANTADO', codigo: 'LE' },
+  { nombre: 'MAL CORTE', codigo: 'MC' },
+  { nombre: 'MAL ENSAMBLE', codigo: 'ME' },
+  { nombre: 'MALA FUSION', codigo: 'MF' },
+  { nombre: 'MALA INSERCION', codigo: 'MI' },
+  { nombre: 'MATERIAL MAL IDENTIFICADO', codigo: 'MTR' },
+  { nombre: 'PANDEADA', codigo: 'PN' },
+  { nombre: 'PIN CORTO', codigo: 'PC' },
+  { nombre: 'PIN LARGO', codigo: 'PL' },
+  { nombre: 'POSICION EQUIVOCADA', codigo: 'POE' },
+  { nombre: 'PROGRAMACION EQUIVOCADA', codigo: 'PE' },
+  { nombre: 'PROGRAMACION FALTANTE', codigo: 'PF' },
+  { nombre: 'QUEBRADO', codigo: 'QB' },
+  { nombre: 'RAYADO', codigo: 'RY' },
+  { nombre: 'REBABA', codigo: 'RB' },
+  { nombre: 'RESIDUO IMD', codigo: 'RIMD' },
+  { nombre: 'SCRAP', codigo: 'S' },
+  { nombre: 'SCRAP ANALISIS', codigo: 'SA' },
+  { nombre: 'SCRAP MR', codigo: 'SMR' },
+  { nombre: 'SERIGRAFIA BORROSA', codigo: 'SEB' },
+  { nombre: 'SERIGRAFIA CORRIDA', codigo: 'SC' },
+  { nombre: 'SERIGRAFIA FALTANTE', codigo: 'SF' },
+  { nombre: 'SILICON', codigo: 'SL' },
+  { nombre: 'SOLDER BALL', codigo: 'SB' }
+];
+
+// Normaliza un string de fecha a objeto Date sin saltos de día por zona horaria
+const toDateSafe = (fechaStr) => {
+  if (!fechaStr) return null;
+  // Si viene sólo YYYY-MM-DD, lo convertimos a medio día UTC para evitar retrocesos de día
+  if (/^\d{4}-\d{2}-\d{2}$/.test(fechaStr)) {
+    return new Date(`${fechaStr}T12:00:00Z`);
+  }
+  return new Date(fechaStr);
+};
+
+// Fecha local en formato YYYY-MM-DD usando la zona horaria de Monterrey
+const getLocalISODate = (tz = MX_TIMEZONE) => {
+  return new Intl.DateTimeFormat('sv-SE', {
+    timeZone: tz,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(new Date());
+};
+
+// Hora local HH:mm:ss en la zona horaria de Monterrey
+const getLocalTimeString = (tz = MX_TIMEZONE) => {
+  return new Intl.DateTimeFormat('sv-SE', {
+    timeZone: tz,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).format(new Date());
 };
 
 createApp({
@@ -23,17 +94,9 @@ createApp({
       },
       defectosHoy: [],
       lineas: ['M1', 'M2', 'M3', 'M4', 'DP1', 'DP2', 'DP3', 'Harness'],
-      areas: ['SMD', 'IMD', 'Ensamble', 'Mantenimiento', 'Micom'],
-      defectosComunes: [
-        'Rayado', 
-        'Golpe', 
-        'Falta de pintura', 
-        'Deformación', 
-        'Suciedad', 
-        'Mal ensamblaje',
-        'Componente faltante',
-        'Soldadura defectuosa'
-      ],
+      areas: ['SMD', 'IMD', 'Ensamble', 'Mantenimiento', 'Micom', 'Calidad', 'Area de Proveedor'],
+      defectosCatalogo: DEFECTOS_CATALOGO,
+      defectosComunes: DEFECTOS_CATALOGO.map(d => d.nombre),
       filtros: {
         materialId: '',
         defectReason: '',
@@ -239,14 +302,11 @@ createApp({
           return;
         }
 
-        // Combinar fecha seleccionada con hora actual del dispositivo
+        // Combinar fecha seleccionada con hora actual en zona Monterrey
         const fechaSeleccionada = this.nuevoDefecto.fecha; // Fecha del formulario (YYYY-MM-DD)
-        const ahora = new Date();
-        const horaActual = String(ahora.getHours()).padStart(2, '0') + ':' +
-          String(ahora.getMinutes()).padStart(2, '0') + ':' +
-          String(ahora.getSeconds()).padStart(2, '0');
-        
-        const fechaHoraLocal = fechaSeleccionada + ' ' + horaActual;
+        const horaActual = getLocalTimeString();
+
+        const fechaHoraLocal = `${fechaSeleccionada} ${horaActual}`;
         console.log('🕐 Fecha seleccionada:', fechaSeleccionada);
         console.log('🕐 Hora actual:', horaActual);
         console.log('🕐 Fecha/Hora a registrar:', fechaHoraLocal);
@@ -306,33 +366,39 @@ createApp({
     
     formatFecha(fechaStr) {
       if (!fechaStr) return '';
-      const fecha = new Date(fechaStr);
+      const fecha = toDateSafe(fechaStr);
+      if (!fecha) return '';
       return fecha.toLocaleString('es-ES', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
+        timeZone: MX_TIMEZONE
       });
     },
     
     formatFechaSolo(fechaStr) {
       if (!fechaStr) return '';
-      const fecha = new Date(fechaStr);
+      const fecha = toDateSafe(fechaStr);
+      if (!fecha) return '';
       return fecha.toLocaleDateString('es-ES', {
         year: 'numeric',
         month: '2-digit',
-        day: '2-digit'
+        day: '2-digit',
+        timeZone: MX_TIMEZONE
       });
     },
     
     formatHora(fechaStr) {
       if (!fechaStr) return '';
-      const fecha = new Date(fechaStr);
+      const fecha = toDateSafe(fechaStr);
+      if (!fecha) return '';
       return fecha.toLocaleTimeString('es-ES', {
         hour: '2-digit',
         minute: '2-digit',
-        second: '2-digit'
+        second: '2-digit',
+        timeZone: MX_TIMEZONE
       });
     },
     

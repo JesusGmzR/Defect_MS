@@ -5,70 +5,74 @@ const API_BASE_URL = window.location.hostname === 'localhost'
     ? 'http://localhost:3000/api' 
     : `${window.location.origin}/api`;
 
+// Módulos base del sistema
+const MODULES = {
+    CAPTURE: {
+        icon: '📸',
+        iconClass: 'capture',
+        title: 'Captura de Defectos',
+        description: 'Registrar nuevos defectos detectados',
+        url: 'capture.html'
+    },
+    REPAIR: {
+        icon: '🔧',
+        iconClass: 'repair',
+        title: 'Reparación',
+        description: 'Gestionar reparaciones de defectos',
+        url: 'reparacion.html'
+    },
+    QA: {
+        icon: '✅',
+        iconClass: 'qa',
+        title: 'Validación QA',
+        description: 'Aprobar o rechazar reparaciones',
+        url: 'qa-validacion.html'
+    },
+    ADMIN: {
+        icon: '👥',
+        iconClass: 'admin',
+        title: 'Gestión de Usuarios',
+        description: 'Administrar usuarios y permisos',
+        url: 'admin.html'
+    },
+    CONFIG: {
+        icon: '⚙️',
+        iconClass: 'admin',
+        title: 'Configuración',
+        description: 'Reportes y ajustes del sistema',
+        url: 'menu.html'
+    }
+};
+
 // Módulos disponibles por rol
 const MODULES_BY_ROLE = {
-    'Inspector_LQC': [
-        {
-            icon: '📸',
-            iconClass: 'capture',
-            title: 'Captura de Defectos',
-            description: 'Registrar nuevos defectos detectados',
-            url: 'capture.html'
-        }
-    ],
-    'Inspector_OQC': [
-        {
-            icon: '📸',
-            iconClass: 'capture',
-            title: 'Captura de Defectos',
-            description: 'Registrar nuevos defectos detectados',
-            url: 'capture.html'
-        }
-    ],
-    'Tecnico_Reparacion': [
-        {
-            icon: '🔧',
-            iconClass: 'repair',
-            title: 'Reparación',
-            description: 'Gestionar reparaciones de defectos',
-            url: 'reparacion.html'
-        }
-    ],
-    'Inspector_QA': [
-        {
+    'Inspector_LQC': [MODULES.CAPTURE],
+    'Inspector_OQC': [MODULES.CAPTURE],
+    'Tecnico_Reparacion': [MODULES.REPAIR],
+    'Inspector_QA': [MODULES.QA],
+    'Admin_Calidad': [MODULES.CAPTURE, MODULES.QA, MODULES.ADMIN],
+    'Admin_Reparacion': [MODULES.REPAIR, MODULES.ADMIN],
+    'Admin': [MODULES.CAPTURE, MODULES.REPAIR, MODULES.QA, MODULES.ADMIN, MODULES.CONFIG]
+};
+{
+        [{
             icon: '✅',
             iconClass: 'qa',
             title: 'Validación QA',
             description: 'Aprobar o rechazar reparaciones',
             url: 'qa-validacion.html'
-        }
-    ],
-    'Admin': [
-        {
-            icon: '📸',
-            iconClass: 'capture',
-            title: 'Captura de Defectos',
-            description: 'Registrar nuevos defectos detectados',
-            url: 'capture.html'
         },
         {
-            icon: '🔧',
-            iconClass: 'repair',
-            title: 'Reparación',
-            description: 'Gestionar reparaciones de defectos',
-            url: 'reparacion.html'
-        },
-        {
-            icon: '✅',
-            iconClass: 'qa',
-            title: 'Validación QA',
-            description: 'Aprobar o rechazar reparaciones',
-            url: 'qa-validacion.html'
+            icon: '👥',
+            iconClass: 'admin',
+            title: 'Gestión de Usuarios',
+            description: 'Crear y administrar usuarios del sistema',
+            url: 'admin.html'
         },
         {
             icon: '⚙️',
             iconClass: 'admin',
-            title: 'Administración',
+            title: 'Configuración',
             description: 'Configuración y reportes del sistema',
             url: 'menu.html'
         }

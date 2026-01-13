@@ -12,6 +12,7 @@ import defectosRoutes from './routes/defectos';
 import modeloRoutes from './routes/modelo';
 import repairsRoutes from './routes/repairs';
 import qaRoutes from './routes/qa';
+import usuariosRoutes from './routes/usuarios';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -36,6 +37,7 @@ app.use('/api/defectos', defectosRoutes);
 app.use('/api/modelo', modeloRoutes);
 app.use('/api/repairs', repairsRoutes);
 app.use('/api/qa', qaRoutes);
+app.use('/api/usuarios', usuariosRoutes);
 
 // Ruta de health check
 app.get('/api/health', (_req: Request, res: Response) => {

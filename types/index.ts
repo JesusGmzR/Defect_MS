@@ -13,6 +13,8 @@ export type UserRole =
   | 'Inspector_OQC' 
   | 'Tecnico_Reparacion'
   | 'Inspector_QA' 
+  | 'Admin_Calidad'
+  | 'Admin_Reparacion'
   | 'Admin';
 
 export type DefectoStatus = 

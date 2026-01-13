@@ -151,6 +151,52 @@
             margin: 0;
             line-height: 1.5;
         }
+
+        /* Responsividad Mejorada */
+        @media (max-width: 768px) {
+            .login-card, .dashboard-card {
+                padding: 30px 20px;
+            }
+            .logo-container h1 {
+                font-size: 42px;
+            }
+            .dashboard-header h2 {
+                font-size: 32px;
+            }
+            .module-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .module-card {
+                padding: 25px 20px;
+                display: flex;
+                align-items: center;
+                text-align: left;
+                gap: 20px;
+            }
+            .module-icon {
+                font-size: 40px;
+                margin-bottom: 0;
+                min-width: 50px;
+                text-align: center;
+            }
+            .module-card h3 {
+                font-size: 18px;
+                margin-bottom: 4px;
+            }
+            .module-card p {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-container h1 {
+                font-size: 36px;
+            }
+            .dashboard-header h2 {
+                font-size: 28px;
+            }
+        }
     </style>
 </head>
 <body>

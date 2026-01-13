@@ -86,7 +86,7 @@ CREATE TABLE usuarios_dms (
     username VARCHAR(50) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     nombre_completo VARCHAR(100) NOT NULL,
-    rol ENUM('Inspector_LQC', 'Inspector_OQC', 'Tecnico_Reparacion', 'Inspector_QA', 'Admin') NOT NULL,
+    rol ENUM('Inspector_LQC', 'Inspector_OQC', 'Tecnico_Reparacion', 'Inspector_QA', 'Admin_Calidad', 'Admin_Reparacion', 'Admin') NOT NULL,
     area VARCHAR(50) NULL,
     activo BOOLEAN DEFAULT TRUE,
     fecha_creacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
