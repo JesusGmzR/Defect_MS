@@ -284,9 +284,16 @@ createApp({
       this.mensajeModal.titulo = titulo;
       this.mensajeModal.mensaje = mensaje;
       this.mensajeModal.tipo = tipo;
-      
-      const modal = new bootstrap.Modal(document.getElementById('mensajeModal'));
+
+      const modalElement = document.getElementById('mensajeModal');
+      const modal = new bootstrap.Modal(modalElement);
       modal.show();
+
+      if (tipo === 'exito') {
+        setTimeout(() => {
+          modal.hide();
+        }, 2000);
+      }
     },
     mostrarError(error) {
       let mensaje = 'Error al procesar la solicitud';
