@@ -49,7 +49,7 @@ const MODULES_BY_ROLE = {
     'Inspector_LQC': [MODULES.CAPTURE],
     'Inspector_OQC': [MODULES.CAPTURE],
     'Tecnico_Reparacion': [MODULES.REPAIR],
-    'Inspector_QA': [MODULES.QA],
+    'Inspector_QA': [MODULES.CAPTURE, MODULES.QA],
     'Admin_Calidad': [MODULES.CAPTURE, MODULES.QA, MODULES.ADMIN],
     'Admin_Reparacion': [MODULES.REPAIR, MODULES.ADMIN],
     'Admin': [MODULES.CAPTURE, MODULES.REPAIR, MODULES.QA, MODULES.ADMIN, MODULES.CONFIG]
