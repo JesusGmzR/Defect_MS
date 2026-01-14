@@ -15,12 +15,12 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Importar rutas desde archivos .js compilados
-const authRoutes = require('../server/routes/auth.js');
-const defectosRoutes = require('../server/routes/defectos.js');
-const modeloRoutes = require('../server/routes/modelo.js');
-const repairsRoutes = require('../server/routes/repairs.js');
-const qaRoutes = require('../server/routes/qa.js');
+// Importar rutas desde el build compilado (dist)
+const authRoutes = require('../dist/server/routes/auth.js').default;
+const defectosRoutes = require('../dist/server/routes/defectos.js').default;
+const modeloRoutes = require('../dist/server/routes/modelo.js').default;
+const repairsRoutes = require('../dist/server/routes/repairs.js').default;
+const qaRoutes = require('../dist/server/routes/qa.js').default;
 
 // Montar rutas con prefijo /api
 app.use('/api/auth', authRoutes);
