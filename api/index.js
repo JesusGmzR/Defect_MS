@@ -21,6 +21,7 @@ const defectosRoutes = require('../dist/server/routes/defectos.js').default;
 const modeloRoutes = require('../dist/server/routes/modelo.js').default;
 const repairsRoutes = require('../dist/server/routes/repairs.js').default;
 const qaRoutes = require('../dist/server/routes/qa.js').default;
+const usuariosRoutes = require('../dist/server/routes/usuarios.js').default;
 
 // Montar rutas con prefijo /api
 app.use('/api/auth', authRoutes);
@@ -28,6 +29,7 @@ app.use('/api/defectos', defectosRoutes);
 app.use('/api/modelo', modeloRoutes);
 app.use('/api/repairs', repairsRoutes);
 app.use('/api/qa', qaRoutes);
+app.use('/api/usuarios', usuariosRoutes);
 
 // Ruta de health check
 app.get('/api', (req, res) => {

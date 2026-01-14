@@ -171,8 +171,8 @@ router.post('/change-password', async (req: express.Request<{}, SuccessResponse 
       return;
     }
     
-    if (newPassword.length < 5) {
-      res.status(400).json({ error: 'La nueva contraseña debe tener al menos 5 caracteres' });
+    if (newPassword.length < 4) {
+      res.status(400).json({ error: 'La nueva contraseña debe tener al menos 4 caracteres' });
       return;
     }
     
