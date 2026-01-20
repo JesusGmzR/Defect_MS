@@ -13,6 +13,7 @@ const DEFECTOS_CATALOGO = [
   { nombre: 'DAÑADO', codigo: 'DA' },
   { nombre: 'DESALINEADO', codigo: 'DE' },
   { nombre: 'ETIQUETA EQUIVOCADA', codigo: 'EEQ' },
+  { nombre: 'EQUIVOCADO', codigo: 'EQ' },
   { nombre: 'EXCESO DE COATING', codigo: 'EC' },
   { nombre: 'EXCESO SOLDADURA', codigo: 'ES' },
   { nombre: 'FALTANTE', codigo: 'FA' },
@@ -89,7 +90,7 @@ createApp({
         ubicacion: '',
         area: '',
         tipo_inspeccion: 'Visual',
-        etapa_deteccion: 'OQC',
+        etapa_deteccion: '', // Se establecerá según el rol del usuario
         modelo: ''
       },
       defectosHoy: [],
@@ -100,7 +101,7 @@ createApp({
       filtros: {
         materialId: '',
         defectReason: '',
-        status: '',
+        linea: '',
         fechaInicio: getLocalISODate(),
         fechaFin: getLocalISODate()
       },
@@ -131,6 +132,7 @@ createApp({
       showUserDropdown: false,
       nombreUsuario: '',
       rolUsuario: '',
+      puedeCapturar: false, // Solo Inspector_LQC e Inspector_OQC pueden capturar
       // Toggle lista de defectos
       mostrarListaDefectos: false,
       // Móvil
@@ -163,6 +165,18 @@ createApp({
       const user = JSON.parse(userData);
       this.nombreUsuario = user.nombre_completo || user.username;
       this.rolUsuario = user.rol;
+
+      // Solo Inspector_LQC e Inspector_OQC pueden capturar defectos
+      const rolesCaptura = ['Inspector_LQC', 'Inspector_OQC'];
+      this.puedeCapturar = rolesCaptura.includes(user.rol);
+
+      // Establecer etapa_deteccion según el rol del inspector
+      if (user.rol === 'Inspector_LQC') {
+        this.nuevoDefecto.etapa_deteccion = 'LQC';
+      } else if (user.rol === 'Inspector_OQC') {
+        this.nuevoDefecto.etapa_deteccion = 'OQC';
+      }
+      // Para otros roles (Supervisor_Calidad, Admin, etc.) no se establece - solo pueden consultar
     }
 
     // Cerrar dropdown al hacer clic fuera
@@ -172,9 +186,9 @@ createApp({
       }
     });
 
-    // Atajo de teclado F1 para capturar
+    // Atajo de teclado F1 para capturar (solo si el usuario puede capturar)
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'F1') {
+      if (e.key === 'F1' && this.puedeCapturar) {
         e.preventDefault();
         this.capturarDefecto();
       }
@@ -209,11 +223,11 @@ createApp({
         console.log('🔧 Después filtro defectReason:', defectos.length);
       }
 
-      if (this.filtros.status) {
+      if (this.filtros.linea) {
         defectos = defectos.filter(d =>
-          d.status === this.filtros.status
+          d.linea === this.filtros.linea
         );
-        console.log('🔧 Después filtro status:', defectos.length);
+        console.log('🔧 Después filtro linea:', defectos.length);
       }
 
       // NO aplicar filtro de fecha aquí porque ya se aplica en el servidor
@@ -309,6 +323,12 @@ createApp({
 
     async capturarDefecto() {
       try {
+        // Verificar que el usuario tiene permisos para capturar
+        if (!this.puedeCapturar) {
+          this.mostrarMensaje('Acceso Denegado', 'Solo los inspectores pueden capturar defectos', 'error');
+          return;
+        }
+
         // Validar campos
         if (!this.nuevoDefecto.fecha ||
           !this.nuevoDefecto.linea ||
@@ -340,7 +360,7 @@ createApp({
           modelo: this.nuevoDefecto.modelo || '',
           tipo_inspeccion: this.nuevoDefecto.tipo_inspeccion,
           etapa_deteccion: this.nuevoDefecto.etapa_deteccion,
-          registrado_por: 'Sistema Web OQC'
+          registrado_por: this.nombreUsuario || 'Sistema'
         };
 
         console.log('📤 Datos enviados al servidor:', defectoData);

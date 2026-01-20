@@ -2053,8 +2053,10 @@
         </div>
       </div>
       <div class="tablet-top-actions">
-        <button type="button" class="btn-tablet-secondary" @click="limpiarFormulario">Limpiar</button>
-        <button type="submit" form="capture-form" class="btn-tablet-primary">Capturar</button>
+        <button v-if="puedeCapturar" type="button" class="btn-tablet-secondary"
+          @click="limpiarFormulario">Limpiar</button>
+        <button v-if="puedeCapturar" type="submit" form="capture-form" class="btn-tablet-primary">Capturar</button>
+        <span v-if="!puedeCapturar" class="text-muted" style="font-size: 12px;">Solo lectura</span>
       </div>
     </div>
 
@@ -2157,13 +2159,13 @@
 
                   <div class="tablet-quick-section">
                     <h4 class="tablet-section-title">Defecto</h4>
-                    <div class="tablet-grid" v-if="defectosComunes.length">
-                      <button type="button" class="quick-btn pill" :class="{ active: nuevoDefecto.defecto === defecto }"
-                        v-for="defecto in defectosComunes" :key="`defecto-${defecto}`"
-                        @click="seleccionarDefectoRapido(defecto)">
-                        {{ defecto }}
-                      </button>
-                    </div>
+                    <select class="form-control tablet-input" v-model="nuevoDefecto.defecto" required>
+                      <option value="">Selecciona un defecto</option>
+                      <option v-for="defecto in defectosCatalogo" :key="`tablet-defecto-${defecto.codigo}`"
+                        :value="defecto.nombre">
+                        {{ defecto.nombre }}
+                      </option>
+                    </select>
                   </div>
 
                   <div class="tablet-quick-section">
@@ -2225,15 +2227,19 @@
               </div>
             </template>
 
-            <button v-if="!esTablet" type="submit" class="btn-capture">
+            <button v-if="!esTablet && puedeCapturar" type="submit" class="btn-capture">
               <i class="bi bi-save"></i>
               Capturar (F1)
             </button>
+            <div v-if="!esTablet && !puedeCapturar" class="alert alert-info"
+              style="margin-top: 10px; text-align: center;">
+              <i class="bi bi-info-circle"></i> Solo lectura - Los supervisores no pueden capturar defectos
+            </div>
           </form>
         </div>
 
-        <!-- Botón flotante para captura manual en móvil -->
-        <button v-if="esMobile && !mostrarModalCapturaMobile" class="btn-float-capture"
+        <!-- Botón flotante para captura manual en móvil (solo para inspectores) -->
+        <button v-if="esMobile && !mostrarModalCapturaMobile && puedeCapturar" class="btn-float-capture"
           @click="mostrarModalCapturaMobile = true" title="Capturar defecto">
           <i class="bi bi-plus-lg"></i>
         </button>
@@ -2271,14 +2277,14 @@
         <!-- Filtros -->
         <div class="filters-bar" :class="{ 'section-hidden': esTablet && !esMobile && !mostrarListaDefectos }">
           <div class="filter-item">
-            <label class="filter-label">Material ID</label>
-            <input type="text" class="filter-input" v-model="filtros.materialId" placeholder="Enter Material ID">
+            <label class="filter-label">No. Parte</label>
+            <input type="text" class="filter-input" v-model="filtros.materialId" placeholder="Buscar código...">
           </div>
 
-          <div class="filter-item" v-if="!esTablet">
-            <label class="filter-label">Defect reason</label>
+          <div class="filter-item">
+            <label class="filter-label">Defecto</label>
             <select class="filter-input" v-model="filtros.defectReason">
-              <option value="">Select an option</option>
+              <option value="">Todos</option>
               <option v-for="defecto in defectosComunes" :key="defecto" :value="defecto">
                 {{ defecto }}
               </option>
@@ -2286,23 +2292,22 @@
           </div>
 
           <div class="filter-item">
-            <label class="filter-label">Status</label>
-            <select class="filter-input" v-model="filtros.status">
-              <option value="">Select an option</option>
-              <option value="Pendiente_Reparacion">New</option>
-              <option value="En_Reparacion">In Progress</option>
-              <option value="Reparado">Repaired</option>
-              <option value="Aprobado">Approved</option>
+            <label class="filter-label">Línea</label>
+            <select class="filter-input" v-model="filtros.linea">
+              <option value="">Todas</option>
+              <option v-for="linea in lineas" :key="linea" :value="linea">
+                {{ linea }}
+              </option>
             </select>
           </div>
 
           <div class="filter-item">
-            <label class="filter-label">From</label>
+            <label class="filter-label">Desde</label>
             <input type="date" class="filter-input" v-model="filtros.fechaInicio">
           </div>
 
           <div class="filter-item">
-            <label class="filter-label">To</label>
+            <label class="filter-label">Hasta</label>
             <input type="date" class="filter-input" v-model="filtros.fechaFin">
           </div>
 
@@ -2356,8 +2361,8 @@
         </div>
       </div>
 
-      <!-- Modal de captura móvil -->
-      <div v-if="esMobile" class="mobile-capture-modal" :class="{ show: mostrarModalCapturaMobile }">
+      <!-- Modal de captura móvil (solo para inspectores) -->
+      <div v-if="esMobile && puedeCapturar" class="mobile-capture-modal" :class="{ show: mostrarModalCapturaMobile }">
         <div class="mobile-modal-header">
           <h3 class="mobile-modal-title">Capturar Defecto</h3>
           <button class="btn-close-modal" @click="cerrarModalCapturaMobile">
