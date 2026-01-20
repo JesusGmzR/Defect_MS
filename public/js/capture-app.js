@@ -160,23 +160,37 @@ createApp({
     this.mostrarListaDefectos = window.innerWidth > 820;
 
     // Cargar información del usuario desde localStorage
-    const userData = localStorage.getItem('userData');
-    if (userData) {
-      const user = JSON.parse(userData);
+    // Soportar ambas claves para compatibilidad
+    const userDataStr = localStorage.getItem('userData') || localStorage.getItem('dms_user');
+    console.log('🔍 userData raw:', userDataStr);
+
+    if (userDataStr) {
+      const user = JSON.parse(userDataStr);
+      console.log('👤 Usuario cargado:', user);
+      console.log('👤 Rol:', user.rol);
+      console.log('👤 Nombre:', user.nombre_completo || user.username);
+
       this.nombreUsuario = user.nombre_completo || user.username;
       this.rolUsuario = user.rol;
 
       // Solo Inspector_LQC e Inspector_OQC pueden capturar defectos
       const rolesCaptura = ['Inspector_LQC', 'Inspector_OQC'];
       this.puedeCapturar = rolesCaptura.includes(user.rol);
+      console.log('✅ puedeCapturar:', this.puedeCapturar);
 
       // Establecer etapa_deteccion según el rol del inspector
       if (user.rol === 'Inspector_LQC') {
         this.nuevoDefecto.etapa_deteccion = 'LQC';
+        console.log('📌 etapa_deteccion establecida a: LQC');
       } else if (user.rol === 'Inspector_OQC') {
         this.nuevoDefecto.etapa_deteccion = 'OQC';
+        console.log('📌 etapa_deteccion establecida a: OQC');
+      } else {
+        console.log('⚠️ Rol no es inspector, etapa_deteccion no establecida');
       }
       // Para otros roles (Supervisor_Calidad, Admin, etc.) no se establece - solo pueden consultar
+    } else {
+      console.warn('⚠️ No se encontró userData en localStorage');
     }
 
     // Cerrar dropdown al hacer clic fuera
@@ -350,6 +364,30 @@ createApp({
         console.log('🕐 Fecha/Hora a registrar:', fechaHoraLocal);
 
         // Preparar datos
+        // Asegurar que tenemos los valores correctos del usuario actual
+        let registradoPor = this.nombreUsuario;
+        let etapaDeteccion = this.nuevoDefecto.etapa_deteccion;
+
+        // Si no tenemos el nombre del usuario, intentar obtenerlo de localStorage
+        if (!registradoPor || registradoPor === 'Sistema') {
+          const userDataStr = localStorage.getItem('userData') || localStorage.getItem('dms_user');
+          if (userDataStr) {
+            const user = JSON.parse(userDataStr);
+            registradoPor = user.nombre_completo || user.username || 'Sistema';
+            // También actualizar etapa_deteccion si está vacía
+            if (!etapaDeteccion) {
+              if (user.rol === 'Inspector_LQC') {
+                etapaDeteccion = 'LQC';
+              } else if (user.rol === 'Inspector_OQC') {
+                etapaDeteccion = 'OQC';
+              }
+            }
+          }
+        }
+
+        console.log('👤 registrado_por final:', registradoPor);
+        console.log('📌 etapa_deteccion final:', etapaDeteccion);
+
         const defectoData = {
           fecha: fechaHoraLocal, // Enviar fecha seleccionada + hora actual en formato MySQL
           linea: this.nuevoDefecto.linea,
@@ -359,8 +397,8 @@ createApp({
           area: this.nuevoDefecto.area,
           modelo: this.nuevoDefecto.modelo || '',
           tipo_inspeccion: this.nuevoDefecto.tipo_inspeccion,
-          etapa_deteccion: this.nuevoDefecto.etapa_deteccion,
-          registrado_por: this.nombreUsuario || 'Sistema'
+          etapa_deteccion: etapaDeteccion,
+          registrado_por: registradoPor
         };
 
         console.log('📤 Datos enviados al servidor:', defectoData);

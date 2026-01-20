@@ -55,6 +55,17 @@ app.get('/api/health', (_req: Request, res: Response) => {
   });
 });
 
+// Ruta de versión - para forzar logout cuando hay cambios
+// Incrementar esta versión cuando se hagan cambios importantes
+const APP_VERSION = '1.1.0'; // Actualizar esta versión cuando haya cambios que requieran re-login
+
+app.get('/api/version', (_req: Request, res: Response) => {
+  res.json({
+    version: APP_VERSION,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Manejo de errores
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('❌ Error del servidor:', err.stack);
