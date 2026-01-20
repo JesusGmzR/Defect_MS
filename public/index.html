@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,11 +15,13 @@
             justify-content: center;
             min-height: 100vh;
         }
+
         .login-container {
             width: 100%;
             max-width: 480px;
             padding: 20px;
         }
+
         .login-card {
             background: var(--ilsan-dark-secondary);
             border: 2px solid var(--ilsan-border);
@@ -26,10 +29,12 @@
             padding: 50px 40px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
+
         .logo-container {
             text-align: center;
             margin-bottom: 40px;
         }
+
         .logo-container h1 {
             color: var(--ilsan-accent-blue);
             font-size: 56px;
@@ -38,12 +43,14 @@
             text-shadow: 0 0 20px rgba(52, 152, 219, 0.4);
             letter-spacing: 6px;
         }
+
         .logo-container p {
             color: var(--ilsan-text-gray);
             font-size: 17px;
             font-weight: 500;
             letter-spacing: 1px;
         }
+
         .btn-login {
             background: linear-gradient(135deg, var(--ilsan-accent-blue) 0%, var(--ilsan-accent-dark-blue) 100%);
             border: none;
@@ -59,32 +66,38 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
+
         .btn-login:hover {
             background: linear-gradient(135deg, var(--ilsan-accent-dark-blue) 0%, #21618c 100%);
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(52, 152, 219, 0.5);
         }
+
         .loading-spinner {
             display: none;
             text-align: center;
             margin-top: 25px;
         }
+
         .spinner-border {
             color: var(--ilsan-accent-blue);
             width: 3rem;
             height: 3rem;
         }
+
         .loading-spinner p {
             color: var(--ilsan-text-gray);
             margin-top: 15px;
             font-size: 15px;
         }
+
         .dashboard-container {
             display: none;
             width: 100%;
             max-width: 1100px;
             padding: 20px;
         }
+
         .dashboard-card {
             background: var(--ilsan-dark-secondary);
             border: 2px solid var(--ilsan-border);
@@ -92,26 +105,31 @@
             padding: 50px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
+
         .dashboard-header {
             text-align: center;
             margin-bottom: 50px;
         }
+
         .dashboard-header h2 {
             color: var(--ilsan-accent-blue);
             font-size: 42px;
             font-weight: 800;
             margin-bottom: 15px;
         }
+
         .dashboard-header p {
             color: var(--ilsan-text-gray);
             font-size: 19px;
         }
+
         .module-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 25px;
             margin-bottom: 40px;
         }
+
         .module-card {
             background: var(--ilsan-dark-primary);
             border: 2px solid var(--ilsan-border);
@@ -123,28 +141,44 @@
             display: block;
             transition: all 0.3s ease;
         }
+
         .module-card:hover {
             border-color: var(--ilsan-accent-blue);
             transform: translateY(-6px);
             box-shadow: 0 12px 28px rgba(52, 152, 219, 0.25);
             background: var(--ilsan-hover);
         }
+
         .module-icon {
             font-size: 55px;
             margin-bottom: 20px;
             display: block;
             filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
         }
-        .module-icon.capture { color: var(--ilsan-accent-blue); }
-        .module-icon.repair { color: var(--ilsan-accent-green-light); }
-        .module-icon.qa { color: var(--ilsan-accent-orange); }
-        .module-icon.admin { color: var(--ilsan-accent-red); }
+
+        .module-icon.capture {
+            color: var(--ilsan-accent-blue);
+        }
+
+        .module-icon.repair {
+            color: var(--ilsan-accent-green-light);
+        }
+
+        .module-icon.qa {
+            color: var(--ilsan-accent-orange);
+        }
+
+        .module-icon.admin {
+            color: var(--ilsan-accent-red);
+        }
+
         .module-card h3 {
             color: var(--ilsan-text-light);
             font-size: 20px;
             font-weight: 700;
             margin-bottom: 12px;
         }
+
         .module-card p {
             color: var(--ilsan-text-gray);
             font-size: 14px;
@@ -154,19 +188,25 @@
 
         /* Responsividad Mejorada */
         @media (max-width: 768px) {
-            .login-card, .dashboard-card {
+
+            .login-card,
+            .dashboard-card {
                 padding: 30px 20px;
             }
+
             .logo-container h1 {
                 font-size: 42px;
             }
+
             .dashboard-header h2 {
                 font-size: 32px;
             }
+
             .module-grid {
                 grid-template-columns: 1fr;
                 gap: 15px;
             }
+
             .module-card {
                 padding: 25px 20px;
                 display: flex;
@@ -174,16 +214,19 @@
                 text-align: left;
                 gap: 20px;
             }
+
             .module-icon {
                 font-size: 40px;
                 margin-bottom: 0;
                 min-width: 50px;
                 text-align: center;
             }
+
             .module-card h3 {
                 font-size: 18px;
                 margin-bottom: 4px;
             }
+
             .module-card p {
                 font-size: 13px;
             }
@@ -193,12 +236,14 @@
             .logo-container h1 {
                 font-size: 36px;
             }
+
             .dashboard-header h2 {
                 font-size: 28px;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="login-container" id="loginContainer">
         <div class="login-card">
@@ -210,11 +255,13 @@
             <form id="loginForm">
                 <div class="mb-3">
                     <label for="username" class="form-label">Usuario</label>
-                    <input type="text" class="form-control" id="username" placeholder="Ingresa tu usuario" required autocomplete="username">
+                    <input type="text" class="form-control" id="username" placeholder="Ingresa tu usuario" required
+                        autocomplete="username" inputmode="numeric" pattern="[0-9]*">
                 </div>
                 <div class="mb-3">
-                    <label for="password" class="form-label">Contraseña</label>
-                    <input type="password" class="form-control" id="password" placeholder="Ingresa tu contraseña" required autocomplete="current-password">
+                    <label for="password" class="form-label">PIN</label>
+                    <input type="password" class="form-control" id="password" placeholder="Ingresa tu PIN" required
+                        autocomplete="current-password" inputmode="numeric" pattern="[0-9]*">
                 </div>
                 <button type="submit" class="btn-login">INICIAR SESIÓN</button>
             </form>
@@ -242,4 +289,5 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <script src="js/login.js"></script>
 </body>
+
 </html>

@@ -1,8 +1,8 @@
 // login.js - Sistema de autenticación y navegación por roles
 
 // Configuración de la API - Detecta automáticamente localhost vs producción
-const API_BASE_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:3000/api' 
+const API_BASE_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:3000/api'
     : `${window.location.origin}/api`;
 
 // Módulos base del sistema
@@ -46,37 +46,16 @@ const MODULES = {
 
 // Módulos disponibles por rol
 const MODULES_BY_ROLE = {
+    // Inspectores solo pueden capturar defectos
     'Inspector_LQC': [MODULES.CAPTURE],
     'Inspector_OQC': [MODULES.CAPTURE],
-    'Tecnico_Reparacion': [MODULES.REPAIR],
-    'Inspector_QA': [MODULES.CAPTURE, MODULES.QA],
-    'Admin_Calidad': [MODULES.CAPTURE, MODULES.QA, MODULES.ADMIN],
-    'Admin_Reparacion': [MODULES.REPAIR, MODULES.ADMIN],
+    // Reparadores solo pueden reparar
+    'Reparador': [MODULES.REPAIR],
+    // Supervisores pueden administrar usuarios según su área
+    'Supervisor_Calidad': [MODULES.CAPTURE, MODULES.ADMIN],
+    'Supervisor_Produccion': [MODULES.REPAIR, MODULES.ADMIN],
+    // Admin tiene acceso completo
     'Admin': [MODULES.CAPTURE, MODULES.REPAIR, MODULES.QA, MODULES.ADMIN, MODULES.CONFIG]
-};
-{
-        [{
-            icon: '✅',
-            iconClass: 'qa',
-            title: 'Validación QA',
-            description: 'Aprobar o rechazar reparaciones',
-            url: 'qa-validacion.html'
-        },
-        {
-            icon: '👥',
-            iconClass: 'admin',
-            title: 'Gestión de Usuarios',
-            description: 'Crear y administrar usuarios del sistema',
-            url: 'admin.html'
-        },
-        {
-            icon: '⚙️',
-            iconClass: 'admin',
-            title: 'Configuración',
-            description: 'Configuración y reportes del sistema',
-            url: 'menu.html'
-        }
-    ]
 };
 
 // Verificar si ya hay sesión activa al cargar
@@ -152,13 +131,13 @@ async function login(username, password) {
         console.error('📋 Error response:', error.response);
         console.error('📨 Error request:', error.request);
         console.error('💬 Error message:', error.message);
-        
+
         let errorMessage = 'Error al iniciar sesión. Por favor intenta nuevamente.';
-        
+
         if (error.response) {
             console.error('🔴 Status:', error.response.status);
             console.error('🔴 Data:', error.response.data);
-            
+
             if (error.response.status === 401) {
                 errorMessage = 'Usuario o contraseña incorrectos';
             } else if (error.response.status === 500) {
@@ -178,7 +157,7 @@ async function login(username, password) {
         }
 
         showAlert(errorMessage, 'danger');
-        
+
         // Volver a mostrar el formulario
         loginForm.style.display = 'block';
         loadingSpinner.style.display = 'none';
@@ -189,7 +168,7 @@ async function login(username, password) {
 async function verifyToken(token) {
     try {
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        
+
         const response = await axios.get(`${API_BASE_URL}/auth/verify`);
 
         if (response.data.success) {
@@ -249,7 +228,7 @@ function logout() {
     // Limpiar localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
-    
+
     // Limpiar header de axios
     delete axios.defaults.headers.common['Authorization'];
 
@@ -273,10 +252,10 @@ function logout() {
 // Mostrar alerta
 function showAlert(message, type = 'info') {
     const alertContainer = document.getElementById('alertContainer');
-    
-    const alertClass = type === 'danger' ? 'alert-danger' : 
-                       type === 'success' ? 'alert-success' : 
-                       'alert-info';
+
+    const alertClass = type === 'danger' ? 'alert-danger' :
+        type === 'success' ? 'alert-success' :
+            'alert-info';
 
     alertContainer.innerHTML = `
         <div class="alert ${alertClass} alert-dismissible fade show" role="alert">

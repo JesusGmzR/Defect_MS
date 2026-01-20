@@ -11,7 +11,7 @@ let usersData = [];
 let currentUser = null;
 
 // Bootstrap modals
-let userModal, passwordModal, deleteModal, toast;
+let userModal, passwordModal, deleteModal, permanentDeleteModal, toast;
 
 /**
  * Initialize on page load
@@ -19,22 +19,23 @@ let userModal, passwordModal, deleteModal, toast;
 document.addEventListener('DOMContentLoaded', () => {
     // Check authentication
     checkAuth();
-    
+
     // Initialize Bootstrap components
     userModal = new bootstrap.Modal(document.getElementById('userModal'));
     passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
     deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    permanentDeleteModal = new bootstrap.Modal(document.getElementById('permanentDeleteModal'));
     toast = new bootstrap.Toast(document.getElementById('toast'));
-    
+
     // Load users
     loadUsers();
-    
+
     // Load roles
     loadRoles();
-    
+
     // Load areas
     loadAreas();
-    
+
     // Setup event listeners
     setupEventListeners();
 });
@@ -45,14 +46,14 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadAreas() {
     try {
         const response = await axios.get(`${API_URL}/usuarios/areas/list`);
-        
+
         if (response.data.success) {
             const areas = response.data.data;
             const areaSelect = document.getElementById('area');
-            
+
             // Clear existing options except the first one
             areaSelect.innerHTML = '<option value="">Sin área asignada</option>';
-            
+
             areas.forEach(area => {
                 const option = document.createElement('option');
                 option.value = area.value;
@@ -71,23 +72,23 @@ async function loadAreas() {
 async function loadRoles() {
     try {
         const response = await axios.get(`${API_URL}/usuarios/roles/list`);
-        
+
         if (response.data.success) {
             const roles = response.data.data;
             const rolSelect = document.getElementById('rol');
             const filterRoleSelect = document.getElementById('filterRole');
-            
+
             // Clear existing options except the first one
             rolSelect.innerHTML = '<option value="">Seleccionar rol...</option>';
             filterRoleSelect.innerHTML = '<option value="">Todos los roles</option>';
-            
+
             roles.forEach(role => {
                 // Add to form select
                 const option = document.createElement('option');
                 option.value = role.value;
                 option.textContent = role.label;
                 rolSelect.appendChild(option);
-                
+
                 // Add to filter select
                 const filterOption = document.createElement('option');
                 filterOption.value = role.value;
@@ -108,13 +109,14 @@ function checkAuth() {
     const token = localStorage.getItem('dms_token') || localStorage.getItem('token');
     const userStr = localStorage.getItem('dms_user') || localStorage.getItem('userData');
     const user = JSON.parse(userStr || '{}');
-    
+
     if (!token) {
         window.location.href = 'index.html';
         return;
     }
-    
-    const adminRoles = ['Admin', 'Admin_Calidad', 'Admin_Reparacion'];
+
+    // Roles que pueden acceder al panel de administración
+    const adminRoles = ['Admin', 'Supervisor_Calidad', 'Supervisor_Produccion'];
     if (!adminRoles.includes(user.rol)) {
         showToast('Acceso denegado', 'No tienes permisos de administrador', 'error');
         setTimeout(() => {
@@ -122,9 +124,9 @@ function checkAuth() {
         }, 2000);
         return;
     }
-    
+
     currentUser = user;
-    
+
     // Setup axios default header
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 }
@@ -135,11 +137,11 @@ function checkAuth() {
 function setupEventListeners() {
     // Search input
     document.getElementById('searchInput').addEventListener('input', debounce(filterUsers, 300));
-    
+
     // Filter selects
     document.getElementById('filterRole').addEventListener('change', filterUsers);
     document.getElementById('filterStatus').addEventListener('change', filterUsers);
-    
+
     // Username input - prevent spaces
     document.getElementById('username').addEventListener('input', (e) => {
         e.target.value = e.target.value.replace(/\s/g, '').toLowerCase();
@@ -152,7 +154,7 @@ function setupEventListeners() {
 async function loadUsers() {
     try {
         const response = await axios.get(`${API_URL}/usuarios`);
-        
+
         if (response.data.success) {
             usersData = response.data.data;
             renderUsers(usersData);
@@ -169,15 +171,15 @@ async function loadUsers() {
 function renderUsers(users) {
     const tbody = document.getElementById('usersTableBody');
     const emptyState = document.getElementById('emptyState');
-    
+
     if (users.length === 0) {
         tbody.innerHTML = '';
         emptyState.style.display = 'block';
         return;
     }
-    
+
     emptyState.style.display = 'none';
-    
+
     tbody.innerHTML = users.map(user => `
         <tr>
             <td>${user.id}</td>
@@ -196,9 +198,14 @@ function renderUsers(users) {
                         <i class="bi bi-key"></i>
                     </button>
                     ${user.id !== currentUser.id ? `
-                        <button class="btn-action delete" onclick="openDeleteModal(${user.id}, '${user.username}')" title="Desactivar">
+                        <button class="btn-action delete" style="background: rgba(241, 196, 15, 0.2); color: #f1c40f;" onclick="openDeleteModal(${user.id}, '${user.username}')" title="Desactivar">
                             <i class="bi bi-person-x"></i>
                         </button>
+                        ${currentUser.rol === 'Admin' ? `
+                            <button class="btn-action delete" onclick="openPermanentDeleteModal(${user.id}, '${user.username}')" title="Eliminar permanentemente">
+                                <i class="bi bi-trash3-fill"></i>
+                            </button>
+                        ` : ''}
                     ` : ''}
                 </div>
             </td>
@@ -213,8 +220,9 @@ function updateStats() {
     document.getElementById('totalUsers').textContent = usersData.length;
     document.getElementById('activeUsers').textContent = usersData.filter(u => u.activo).length;
     document.getElementById('inactiveUsers').textContent = usersData.filter(u => !u.activo).length;
-    
-    const adminRoles = ['Admin', 'Admin_Calidad', 'Admin_Reparacion'];
+
+    // Roles administrativos/supervisores
+    const adminRoles = ['Admin', 'Supervisor_Calidad', 'Supervisor_Produccion'];
     document.getElementById('adminUsers').textContent = usersData.filter(u => adminRoles.includes(u.rol)).length;
 }
 
@@ -225,28 +233,28 @@ function filterUsers() {
     const search = document.getElementById('searchInput').value.toLowerCase();
     const roleFilter = document.getElementById('filterRole').value;
     const statusFilter = document.getElementById('filterStatus').value;
-    
+
     let filtered = usersData;
-    
+
     // Search filter
     if (search) {
-        filtered = filtered.filter(u => 
-            u.username.toLowerCase().includes(search) || 
+        filtered = filtered.filter(u =>
+            u.username.toLowerCase().includes(search) ||
             u.nombre_completo.toLowerCase().includes(search)
         );
     }
-    
+
     // Role filter
     if (roleFilter) {
         filtered = filtered.filter(u => u.rol === roleFilter);
     }
-    
+
     // Status filter
     if (statusFilter !== '') {
         const isActive = statusFilter === '1';
         filtered = filtered.filter(u => u.activo === isActive);
     }
-    
+
     renderUsers(filtered);
 }
 
@@ -261,7 +269,7 @@ function openCreateModal() {
     document.getElementById('passwordGroup').style.display = 'block';
     document.getElementById('password').required = true;
     document.getElementById('statusGroup').style.display = 'none';
-    
+
     userModal.show();
 }
 
@@ -271,10 +279,10 @@ function openCreateModal() {
 async function openEditModal(userId) {
     try {
         const response = await axios.get(`${API_URL}/usuarios/${userId}`);
-        
+
         if (response.data.success) {
             const user = response.data.data;
-            
+
             document.getElementById('modalTitle').textContent = 'Editar Usuario';
             document.getElementById('userId').value = user.id;
             document.getElementById('username').value = user.username;
@@ -283,14 +291,14 @@ async function openEditModal(userId) {
             document.getElementById('rol').value = user.rol;
             document.getElementById('area').value = user.area || '';
             document.getElementById('activo').checked = user.activo;
-            
+
             // Hide password field for edit
             document.getElementById('passwordGroup').style.display = 'none';
             document.getElementById('password').required = false;
-            
+
             // Show status field
             document.getElementById('statusGroup').style.display = 'block';
-            
+
             userModal.show();
         }
     } catch (error) {
@@ -304,42 +312,42 @@ async function openEditModal(userId) {
 async function saveUser() {
     const userId = document.getElementById('userId').value;
     const isEdit = userId !== '';
-    
+
     // Gather form data
     const userData = {
         nombre_completo: document.getElementById('nombre_completo').value.trim(),
         rol: document.getElementById('rol').value,
         area: document.getElementById('area').value || null
     };
-    
+
     if (!isEdit) {
         userData.username = document.getElementById('username').value.trim();
         userData.password = document.getElementById('password').value;
-        
+
         // Validate password for new users
-        if (!userData.password || userData.password.length < 6) {
-            showToast('Error', 'La contraseña debe tener al menos 6 caracteres', 'error');
+        if (!userData.password || userData.password.length < 4) {
+            showToast('Error', 'La contraseña debe tener al menos 4 caracteres', 'error');
             return;
         }
     } else {
         userData.activo = document.getElementById('activo').checked;
     }
-    
+
     // Validate required fields
     if (!userData.nombre_completo || !userData.rol) {
         showToast('Error', 'Completa todos los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         let response;
-        
+
         if (isEdit) {
             response = await axios.put(`${API_URL}/usuarios/${userId}`, userData);
         } else {
             response = await axios.post(`${API_URL}/usuarios`, userData);
         }
-        
+
         if (response.data.success) {
             showToast('Éxito', response.data.message, 'success');
             userModal.hide();
@@ -357,7 +365,7 @@ function openPasswordModal(userId, username) {
     document.getElementById('passwordUserId').value = userId;
     document.getElementById('passwordUserName').textContent = username;
     document.getElementById('passwordForm').reset();
-    
+
     passwordModal.show();
 }
 
@@ -368,23 +376,23 @@ async function changePassword() {
     const userId = document.getElementById('passwordUserId').value;
     const newPassword = document.getElementById('new_password').value;
     const confirmPassword = document.getElementById('confirm_password').value;
-    
+
     // Validate
-    if (!newPassword || newPassword.length < 6) {
-        showToast('Error', 'La contraseña debe tener al menos 6 caracteres', 'error');
+    if (!newPassword || newPassword.length < 4) {
+        showToast('Error', 'La contraseña debe tener al menos 4 caracteres', 'error');
         return;
     }
-    
+
     if (newPassword !== confirmPassword) {
         showToast('Error', 'Las contraseñas no coinciden', 'error');
         return;
     }
-    
+
     try {
         const response = await axios.put(`${API_URL}/usuarios/${userId}/password`, {
             new_password: newPassword
         });
-        
+
         if (response.data.success) {
             showToast('Éxito', 'Contraseña actualizada correctamente', 'success');
             passwordModal.hide();
@@ -400,7 +408,7 @@ async function changePassword() {
 function openDeleteModal(userId, username) {
     document.getElementById('deleteUserId').value = userId;
     document.getElementById('deleteUserName').textContent = username;
-    
+
     deleteModal.show();
 }
 
@@ -409,10 +417,10 @@ function openDeleteModal(userId, username) {
  */
 async function confirmDelete() {
     const userId = document.getElementById('deleteUserId').value;
-    
+
     try {
         const response = await axios.delete(`${API_URL}/usuarios/${userId}`);
-        
+
         if (response.data.success) {
             showToast('Éxito', response.data.message, 'success');
             deleteModal.hide();
@@ -424,12 +432,41 @@ async function confirmDelete() {
 }
 
 /**
+ * Open permanent delete confirmation modal
+ */
+function openPermanentDeleteModal(userId, username) {
+    document.getElementById('permanentDeleteUserId').value = userId;
+    document.getElementById('permanentDeleteUserName').textContent = username;
+
+    permanentDeleteModal.show();
+}
+
+/**
+ * Confirm permanent delete user
+ */
+async function confirmPermanentDelete() {
+    const userId = document.getElementById('permanentDeleteUserId').value;
+
+    try {
+        const response = await axios.delete(`${API_URL}/usuarios/${userId}/permanent`);
+
+        if (response.data.success) {
+            showToast('Éxito', response.data.message, 'success');
+            permanentDeleteModal.hide();
+            loadUsers();
+        }
+    } catch (error) {
+        handleApiError(error, 'Error al eliminar usuario');
+    }
+}
+
+/**
  * Toggle password visibility
  */
 function togglePassword(inputId) {
     const input = document.getElementById(inputId);
     const icon = input.nextElementSibling.querySelector('i');
-    
+
     if (input.type === 'password') {
         input.type = 'text';
         icon.classList.replace('bi-eye', 'bi-eye-slash');
@@ -447,10 +484,10 @@ function showToast(title, message, type = 'info') {
     const toastTitle = document.getElementById('toastTitle');
     const toastMessage = document.getElementById('toastMessage');
     const toastIcon = document.getElementById('toastIcon');
-    
+
     toastTitle.textContent = title;
     toastMessage.textContent = message;
-    
+
     // Set icon and color based on type
     toastIcon.className = 'bi me-2';
     switch (type) {
@@ -466,7 +503,7 @@ function showToast(title, message, type = 'info') {
             toastIcon.classList.add('bi-info-circle', 'text-info');
             toastIcon.style.color = '#3498db'; // Bright blue
     }
-    
+
     toast.show();
 }
 
@@ -475,7 +512,7 @@ function showToast(title, message, type = 'info') {
  */
 function handleApiError(error, defaultMessage) {
     console.error(error);
-    
+
     if (error.response) {
         if (error.response.status === 401) {
             localStorage.removeItem('dms_token');
@@ -483,7 +520,7 @@ function handleApiError(error, defaultMessage) {
             window.location.href = 'index.html';
             return;
         }
-        
+
         showToast('Error', error.response.data.error || defaultMessage, 'error');
     } else {
         showToast('Error', defaultMessage, 'error');
@@ -495,13 +532,12 @@ function handleApiError(error, defaultMessage) {
  */
 function formatRole(rol) {
     const roles = {
-        'Admin': 'Super Admin',
-        'Admin_Calidad': 'Admin Calidad',
-        'Admin_Reparacion': 'Admin Reparación',
+        'Admin': 'Administrador',
+        'Supervisor_Calidad': 'Supervisor Calidad',
+        'Supervisor_Produccion': 'Supervisor Producción',
         'Inspector_LQC': 'Inspector LQC',
         'Inspector_OQC': 'Inspector OQC',
-        'Tecnico_Reparacion': 'Técnico Reparación',
-        'Inspector_QA': 'Inspector QA'
+        'Reparador': 'Reparador'
     };
     return roles[rol] || rol;
 }
@@ -512,12 +548,11 @@ function formatRole(rol) {
 function getRoleBadgeClass(rol) {
     const classes = {
         'Admin': 'admin',
-        'Admin_Calidad': 'admin',
-        'Admin_Reparacion': 'admin',
+        'Supervisor_Calidad': 'admin',
+        'Supervisor_Produccion': 'admin',
         'Inspector_LQC': 'inspector-lqc',
         'Inspector_OQC': 'inspector-oqc',
-        'Tecnico_Reparacion': 'tecnico',
-        'Inspector_QA': 'inspector-qa'
+        'Reparador': 'tecnico'
     };
     return classes[rol] || '';
 }
@@ -527,7 +562,7 @@ function getRoleBadgeClass(rol) {
  */
 function formatDate(dateStr) {
     if (!dateStr) return 'Nunca';
-    
+
     const date = new Date(dateStr);
     return date.toLocaleDateString('es-MX', {
         year: 'numeric',

@@ -2,11 +2,11 @@ import express, { Response } from 'express';
 import bcrypt from 'bcryptjs';
 import pool from '../database/db';
 import { verificarToken, verificarAdmin } from '../middleware/auth';
-import { 
+import {
   AuthenticatedRequest,
   Usuario,
   UserRole,
-  Area
+  AreaUsuario
 } from '../../types';
 
 const router = express.Router();
@@ -15,18 +15,21 @@ const router = express.Router();
 router.use(verificarToken);
 router.use(verificarAdmin);
 
-// Definición de grupos de roles por tipo de administrador
-const ROLES_CALIDAD: UserRole[] = ['Inspector_LQC', 'Inspector_OQC', 'Inspector_QA', 'Admin_Calidad'];
-const ROLES_REPARACION: UserRole[] = ['Tecnico_Reparacion', 'Admin_Reparacion'];
-const TODOS_LOS_ROLES: UserRole[] = [...ROLES_CALIDAD, ...ROLES_REPARACION, 'Admin'];
+// Definición de grupos de roles por tipo de supervisor
+// Supervisor Calidad puede gestionar: Inspector_LQC, Inspector_OQC
+const ROLES_CALIDAD: UserRole[] = ['Inspector_LQC', 'Inspector_OQC'];
+// Supervisor Producción puede gestionar: Reparador
+const ROLES_PRODUCCION: UserRole[] = ['Reparador'];
+// Admin puede gestionar todos los roles
+const TODOS_LOS_ROLES: UserRole[] = [...ROLES_CALIDAD, ...ROLES_PRODUCCION, 'Supervisor_Calidad', 'Supervisor_Produccion', 'Admin'];
 
 /**
  * Obtiene los roles que un usuario puede gestionar según su propio rol
  */
 const getRolesGestionables = (userRol: string): UserRole[] => {
   if (userRol === 'Admin') return TODOS_LOS_ROLES;
-  if (userRol === 'Admin_Calidad') return ROLES_CALIDAD;
-  if (userRol === 'Admin_Reparacion') return ROLES_REPARACION;
+  if (userRol === 'Supervisor_Calidad') return ROLES_CALIDAD;
+  if (userRol === 'Supervisor_Produccion') return ROLES_PRODUCCION;
   return [];
 };
 
@@ -43,9 +46,9 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
       SELECT id, username, nombre_completo, rol, area, activo, fecha_creacion, ultimo_acceso 
       FROM usuarios_dms 
     `;
-    
+
     const params: any[] = [];
-    
+
     // Si no es super admin, filtrar por los roles que puede gestionar
     if (userRol !== 'Admin') {
       query += ` WHERE rol IN (${rolesPermitidos.map(() => '?').join(',')}) `;
@@ -58,20 +61,20 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
         params.push(userArea);
       }
     }
-    
+
     query += ` ORDER BY fecha_creacion DESC `;
-    
+
     const [rows] = await pool.execute<Usuario[]>(query, params);
-    
+
     res.json({
       success: true,
       data: rows
     });
   } catch (error) {
     console.error('Error al obtener usuarios:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Error al obtener usuarios',
-      details: (error as Error).message 
+      ...(process.env.NODE_ENV === 'development' && { details: (error as Error).message })
     });
   }
 });
@@ -85,7 +88,7 @@ router.get('/:id', async (req: AuthenticatedRequest, res: Response) => {
     const { id } = req.params;
     const userRol = req.user?.rol || '';
     const rolesPermitidos = getRolesGestionables(userRol);
-    
+
     let query = `
       SELECT id, username, nombre_completo, rol, area, activo, fecha_creacion, ultimo_acceso 
       FROM usuarios_dms 
@@ -104,23 +107,23 @@ router.get('/:id', async (req: AuthenticatedRequest, res: Response) => {
         params.push(userArea);
       }
     }
-    
+
     const [rows] = await pool.execute<Usuario[]>(query, params);
-    
+
     if (rows.length === 0) {
       res.status(404).json({ error: 'Usuario no encontrado o sin permisos para verlo' });
       return;
     }
-    
+
     res.json({
       success: true,
       data: rows[0]
     });
   } catch (error) {
     console.error('Error al obtener usuario:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Error al obtener usuario',
-      details: (error as Error).message 
+      ...(process.env.NODE_ENV === 'development' && { details: (error as Error).message })
     });
   }
 });
@@ -134,27 +137,27 @@ interface CreateUserRequest {
   password: string;
   nombre_completo: string;
   rol: UserRole;
-  area?: Area;
+  area?: AreaUsuario;
 }
 
 router.post('/', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { username, password, nombre_completo, rol, area }: CreateUserRequest = req.body;
-    
+
     // Validaciones
     if (!username || !password || !nombre_completo || !rol) {
-      res.status(400).json({ 
-        error: 'Campos requeridos: username, password, nombre_completo, rol' 
+      res.status(400).json({
+        error: 'Campos requeridos: username, password, nombre_completo, rol'
       });
       return;
     }
 
     // Validar rol
     const rolesPermitidos = getRolesGestionables(req.user?.rol || '');
-    
+
     if (!rolesPermitidos.includes(rol)) {
-      res.status(403).json({ 
-        error: `No tienes permisos para crear usuarios con el rol: ${rol}. Roles permitidos: ${rolesPermitidos.join(', ')}` 
+      res.status(403).json({
+        error: `No tienes permisos para crear usuarios con el rol: ${rol}. Roles permitidos: ${rolesPermitidos.join(', ')}`
       });
       return;
     }
@@ -164,7 +167,7 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
       'SELECT id FROM usuarios_dms WHERE username = ?',
       [username]
     );
-    
+
     if (existingUsers.length > 0) {
       res.status(409).json({ error: 'El nombre de usuario ya existe' });
       return;
@@ -179,7 +182,7 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
       INSERT INTO usuarios_dms (username, password_hash, nombre_completo, rol, area, activo, fecha_creacion)
       VALUES (?, ?, ?, ?, ?, TRUE, NOW())
     `;
-    
+
     const [result] = await pool.execute(insertQuery, [
       username,
       password_hash,
@@ -203,9 +206,9 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
     });
   } catch (error) {
     console.error('Error al crear usuario:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Error al crear usuario',
-      details: (error as Error).message 
+      ...(process.env.NODE_ENV === 'development' && { details: (error as Error).message })
     });
   }
 });
@@ -217,7 +220,7 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
 interface UpdateUserRequest {
   nombre_completo?: string;
   rol?: UserRole;
-  area?: Area;
+  area?: AreaUsuario;
   activo?: boolean;
 }
 
@@ -245,7 +248,7 @@ router.put('/:id', async (req: AuthenticatedRequest, res: Response) => {
     }
 
     const [existingUsers] = await pool.execute<Usuario[]>(checkQuery, checkParams);
-    
+
     if (existingUsers.length === 0) {
       res.status(404).json({ error: 'Usuario no encontrado o sin permisos para editarlo' });
       return;
@@ -254,8 +257,8 @@ router.put('/:id', async (req: AuthenticatedRequest, res: Response) => {
     // Validar nuevo rol si se proporciona
     if (rol) {
       if (!rolesPermitidos.includes(rol)) {
-        res.status(403).json({ 
-          error: `No tienes permisos para asignar el rol: ${rol}. Roles permitidos: ${rolesPermitidos.join(', ')}` 
+        res.status(403).json({
+          error: `No tienes permisos para asignar el rol: ${rol}. Roles permitidos: ${rolesPermitidos.join(', ')}`
         });
         return;
       }
@@ -298,9 +301,9 @@ router.put('/:id', async (req: AuthenticatedRequest, res: Response) => {
     });
   } catch (error) {
     console.error('Error al actualizar usuario:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Error al actualizar usuario',
-      details: (error as Error).message 
+      ...(process.env.NODE_ENV === 'development' && { details: (error as Error).message })
     });
   }
 });
@@ -316,9 +319,9 @@ router.put('/:id/password', async (req: AuthenticatedRequest, res: Response) => 
     const userRol = req.user?.rol || '';
     const rolesPermitidos = getRolesGestionables(userRol);
 
-    if (!new_password || new_password.length < 6) {
-      res.status(400).json({ 
-        error: 'La contraseña debe tener al menos 6 caracteres' 
+    if (!new_password || new_password.length < 4) {
+      res.status(400).json({
+        error: 'La contraseña debe tener al menos 4 caracteres'
       });
       return;
     }
@@ -340,7 +343,7 @@ router.put('/:id/password', async (req: AuthenticatedRequest, res: Response) => 
     }
 
     const [existingUsers] = await pool.execute<Usuario[]>(checkQuery, checkParams);
-    
+
     if (existingUsers.length === 0) {
       res.status(404).json({ error: 'Usuario no encontrado o sin permisos' });
       return;
@@ -361,9 +364,9 @@ router.put('/:id/password', async (req: AuthenticatedRequest, res: Response) => 
     });
   } catch (error) {
     console.error('Error al cambiar contraseña:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Error al cambiar contraseña',
-      details: (error as Error).message 
+      ...(process.env.NODE_ENV === 'development' && { details: (error as Error).message })
     });
   }
 });
@@ -401,7 +404,7 @@ router.delete('/:id', async (req: AuthenticatedRequest, res: Response) => {
     }
 
     const [existingUsers] = await pool.execute<Usuario[]>(checkQuery, checkParams);
-    
+
     if (existingUsers.length === 0) {
       res.status(404).json({ error: 'Usuario no encontrado o sin permisos' });
       return;
@@ -419,9 +422,63 @@ router.delete('/:id', async (req: AuthenticatedRequest, res: Response) => {
     });
   } catch (error) {
     console.error('Error al eliminar usuario:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Error al eliminar usuario',
-      details: (error as Error).message 
+      ...(process.env.NODE_ENV === 'development' && { details: (error as Error).message })
+    });
+  }
+});
+
+/**
+ * DELETE /api/usuarios/:id/permanent
+ * Eliminar usuario permanentemente (hard delete)
+ * Solo disponible para Super Admin
+ */
+router.delete('/:id/permanent', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const userRol = req.user?.rol || '';
+
+    // Solo Super Admin puede eliminar permanentemente
+    if (userRol !== 'Admin') {
+      res.status(403).json({ error: 'Solo el Super Administrador puede eliminar usuarios permanentemente' });
+      return;
+    }
+
+    // No permitir eliminarse a sí mismo
+    if (req.user?.id === parseInt(id)) {
+      res.status(400).json({ error: 'No puedes eliminar tu propia cuenta' });
+      return;
+    }
+
+    // Verificar que el usuario existe
+    const [existingUsers] = await pool.execute<Usuario[]>(
+      'SELECT id, username FROM usuarios_dms WHERE id = ?',
+      [id]
+    );
+
+    if (existingUsers.length === 0) {
+      res.status(404).json({ error: 'Usuario no encontrado' });
+      return;
+    }
+
+    const username = existingUsers[0].username;
+
+    // Hard delete - eliminar permanentemente
+    await pool.execute(
+      'DELETE FROM usuarios_dms WHERE id = ?',
+      [id]
+    );
+
+    res.json({
+      success: true,
+      message: `Usuario ${username} eliminado permanentemente`
+    });
+  } catch (error) {
+    console.error('Error al eliminar usuario permanentemente:', error);
+    res.status(500).json({
+      error: 'Error al eliminar usuario',
+      ...(process.env.NODE_ENV === 'development' && { details: (error as Error).message })
     });
   }
 });
@@ -432,15 +489,14 @@ router.delete('/:id', async (req: AuthenticatedRequest, res: Response) => {
  */
 router.get('/roles/list', async (req: AuthenticatedRequest, res: Response) => {
   const userRol = req.user?.rol || '';
-  
+
   const allRoles = [
-    { value: 'Inspector_LQC', label: 'Inspector LQC', description: 'Inspección en línea de producción' },
-    { value: 'Inspector_OQC', label: 'Inspector OQC', description: 'Inspección de calidad final' },
-    { value: 'Tecnico_Reparacion', label: 'Técnico de Reparación', description: 'Reparación de defectos' },
-    { value: 'Inspector_QA', label: 'Inspector QA', description: 'Verificación post-reparación' },
-    { value: 'Admin_Calidad', label: 'Admin Calidad', description: 'Administrador de inspectores' },
-    { value: 'Admin_Reparacion', label: 'Admin Reparación', description: 'Administrador de técnicos' },
-    { value: 'Admin', label: 'Super Administrador', description: 'Acceso completo al sistema' }
+    { value: 'Inspector_LQC', label: 'Inspector LQC', description: 'Inspección en línea de producción (LQC)' },
+    { value: 'Inspector_OQC', label: 'Inspector OQC', description: 'Inspección de calidad final (OQC)' },
+    { value: 'Reparador', label: 'Reparador', description: 'Reparación de defectos' },
+    { value: 'Supervisor_Calidad', label: 'Supervisor Calidad', description: 'Administra inspectores LQC y OQC' },
+    { value: 'Supervisor_Produccion', label: 'Supervisor Producción', description: 'Administra reparadores' },
+    { value: 'Admin', label: 'Administrador', description: 'Acceso completo al sistema' }
   ];
 
   const rolesPermitidos = getRolesGestionables(userRol);
@@ -458,11 +514,12 @@ router.get('/roles/list', async (req: AuthenticatedRequest, res: Response) => {
  */
 router.get('/areas/list', async (_req: AuthenticatedRequest, res: Response) => {
   const areas = [
-    { value: 'LQC', label: 'LQC' },
-    { value: 'OQC', label: 'OQC' },
-    { value: 'Reparacion', label: 'Reparación' },
-    { value: 'QA', label: 'QA' },
-    { value: 'Administracion', label: 'Administración' }
+    { value: 'LQC', label: 'LQC', description: 'Para inspectores de LQC' },
+    { value: 'OQC', label: 'OQC', description: 'Para inspectores de OQC' },
+    { value: 'Reparador', label: 'Reparador', description: 'Para reparadores' },
+    { value: 'Calidad', label: 'Calidad', description: 'Para Supervisor de Calidad' },
+    { value: 'Produccion', label: 'Producción', description: 'Para Supervisor de Producción' },
+    { value: 'Administracion', label: 'Administración', description: 'Para Administrador' }
   ];
 
   res.json({

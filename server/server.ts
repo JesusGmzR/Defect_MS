@@ -6,6 +6,13 @@ import cors from 'cors';
 // Cargar variables de entorno
 dotenv.config();
 
+// Validar variables de entorno críticas
+if (!process.env.JWT_SECRET) {
+  console.error('❌ FATAL: JWT_SECRET no está configurado en las variables de entorno');
+  console.error('   Por favor, define JWT_SECRET en tu archivo .env');
+  process.exit(1);
+}
+
 // Importar rutas
 import authRoutes from './routes/auth';
 import defectosRoutes from './routes/defectos';
@@ -51,7 +58,7 @@ app.get('/api/health', (_req: Request, res: Response) => {
 // Manejo de errores
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('❌ Error del servidor:', err.stack);
-  res.status(500).json({ 
+  res.status(500).json({
     error: 'Error interno del servidor',
     details: process.env.NODE_ENV === 'development' ? err.message : undefined
   });

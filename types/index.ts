@@ -8,27 +8,28 @@ import { RowDataPacket, ResultSetHeader } from 'mysql2';
 // ENUMS Y TIPOS LITERALES
 // ============================================
 
-export type UserRole = 
-  | 'Inspector_LQC' 
-  | 'Inspector_OQC' 
-  | 'Tecnico_Reparacion'
-  | 'Inspector_QA' 
-  | 'Admin_Calidad'
-  | 'Admin_Reparacion'
+export type UserRole =
+  | 'Inspector_LQC'
+  | 'Inspector_OQC'
+  | 'Reparador'
+  | 'Supervisor_Calidad'
+  | 'Supervisor_Produccion'
   | 'Admin';
 
-export type DefectoStatus = 
-  | 'Pendiente_Reparacion' 
-  | 'En_Reparacion' 
-  | 'Reparado' 
-  | 'Rechazado' 
+export type DefectoStatus =
+  | 'Pendiente_Reparacion'
+  | 'En_Reparacion'
+  | 'Reparado'
+  | 'Rechazado'
   | 'Aprobado';
 
 export type TipoInspeccion = 'ICT' | 'FCT' | 'Packing' | 'Visual';
 
 export type EtapaDeteccion = 'LQC' | 'OQC';
 
-export type Area = 'SMD' | 'IMD' | 'Ensamble' | 'Mantenimiento' | 'Micom';
+export type AreaUsuario = 'LQC' | 'OQC' | 'Reparador' | 'Calidad' | 'Produccion' | 'Administracion';
+
+export type AreaDefecto = 'SMD' | 'IMD' | 'Ensamble' | 'Mantenimiento' | 'Micom';
 
 export type Linea = 'M1' | 'M2' | 'M3' | 'M4' | 'DP1' | 'DP2' | 'DP3' | 'Harness';
 
@@ -48,7 +49,7 @@ export interface Defecto extends RowDataPacket {
   codigo: string;
   defecto: string;
   ubicacion: string;
-  area: Area;
+  area: AreaDefecto;
   modelo?: string;
   tipo_inspeccion: TipoInspeccion;
   etapa_deteccion: EtapaDeteccion;
@@ -123,7 +124,7 @@ export interface CreateDefectoRequest {
   codigo: string;
   defecto: string;
   ubicacion: string;
-  area: Area;
+  area: AreaDefecto;
   modelo?: string;
   tipo_inspeccion: TipoInspeccion;
   etapa_deteccion: EtapaDeteccion;
@@ -260,7 +261,7 @@ export interface DefectosFilters {
   codigo?: string;
   defecto?: string;
   ubicacion?: string;
-  area?: Area;
+  area?: AreaDefecto;
   status?: DefectoStatus;
   tipo_inspeccion?: TipoInspeccion;
   etapa_deteccion?: EtapaDeteccion;

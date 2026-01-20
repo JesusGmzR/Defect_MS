@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Captura de Defectos OQC - ILSAN</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
@@ -16,14 +16,24 @@
 
     body {
       height: 100vh;
+      height: 100dvh;
+      /* Dynamic viewport height for mobile browsers */
       overflow: hidden;
       font-size: 12px !important;
+      /* Safe area padding para dispositivos con notch o barras */
+      padding-top: env(safe-area-inset-top, 0);
+      padding-bottom: env(safe-area-inset-bottom, 0);
+      padding-left: env(safe-area-inset-left, 0);
+      padding-right: env(safe-area-inset-right, 0);
     }
 
     .main-container {
       display: flex;
       flex-direction: column;
       height: 100vh;
+      height: 100dvh;
+      min-height: 0;
+      /* Prevenir overflow */
     }
 
     /* Barra superior para desktop */
@@ -782,9 +792,10 @@
     }
 
     /* ====================
-       Ajustes tablet 1024x600
+       Ajustes tablet horizontal (821px - 1200px)
+       Galaxy Tab A9 horizontal: viewport ~1200-1280px
        ==================== */
-    @media (max-width: 1200px) {
+    @media (min-width: 821px) and (max-width: 1200px) {
       body {
         font-size: 11px !important;
       }
@@ -1199,21 +1210,28 @@
     }
 
     /* ====================
-       VERSION MÓVIL (< 768px)
+       VERSION MÓVIL - Incluye Galaxy Tab A9 Vertical
+       Galaxy Tab A9 viewport real en vertical: ~753-767px
+       Usamos 820px para cubrir con margen
        ==================== */
-    @media (max-width: 767px) {
+    @media (max-width: 820px) {
       * {
         font-size: 14px !important;
       }
 
       body {
         overflow: hidden;
+        /* Padding superior para evitar que el header se corte en navegadores móviles */
+        padding-top: max(env(safe-area-inset-top, 0px), 0px);
       }
 
       .main-container {
         height: 100vh;
+        height: 100dvh;
+        /* Dynamic viewport height */
         display: flex;
         flex-direction: column;
+        min-height: 0;
       }
 
       /* Ocultar elementos de desktop y tablet */
@@ -1229,15 +1247,19 @@
         overflow: hidden;
       }
 
-      /* Header móvil compacto */
+      /* Header móvil compacto - Prominente y visible */
       .header {
-        padding: 8px 12px;
+        padding: 12px 16px;
+        padding-top: max(12px, env(safe-area-inset-top, 12px));
         background: var(--ilsan-dark-primary);
-        border-bottom: 2px solid var(--ilsan-accent-blue);
+        border-bottom: 3px solid var(--ilsan-accent-blue);
         display: flex;
         align-items: center;
         justify-content: space-between;
         flex-shrink: 0;
+        min-height: 56px;
+        /* Altura mínima garantizada */
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       }
 
       .mobile-brand {
@@ -1266,6 +1288,34 @@
       .mobile-brand-subtitle {
         font-size: 10px !important;
         color: var(--ilsan-text-gray);
+      }
+
+      /* Botón logout minimalista */
+      .btn-mobile-logout {
+        background: transparent;
+        border: 1px solid var(--ilsan-border);
+        color: var(--ilsan-text-gray);
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-left: auto;
+      }
+
+      .btn-mobile-logout:hover,
+      .btn-mobile-logout:active {
+        background: rgba(231, 76, 60, 0.15);
+        border-color: var(--ilsan-accent-red);
+        color: var(--ilsan-accent-red);
+        transform: scale(0.95);
+      }
+
+      .btn-mobile-logout i {
+        font-size: 18px !important;
       }
 
       .mobile-header-actions {
@@ -1830,6 +1880,138 @@
         font-size: 28px !important;
       }
     }
+
+    /* ====================
+       GALAXY TAB A9 HORIZONTAL (landscape)
+       Resolución: ~1340x800 (ancho x alto)
+       ==================== */
+    @media (min-width: 768px) and (max-width: 1400px) and (max-height: 900px) and (orientation: landscape) {
+      body {
+        font-size: 12px !important;
+      }
+
+      .main-container {
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+      }
+
+      /* Mostrar tablet-top-bar en este modo */
+      .tablet-top-bar {
+        display: flex !important;
+        padding: 8px 16px;
+        min-height: 52px;
+      }
+
+      .tablet-brand-logo {
+        height: 38px;
+      }
+
+      .tablet-brand-name {
+        font-size: 18px !important;
+      }
+
+      .left-panel {
+        max-height: calc(100vh - 60px);
+        max-height: calc(100dvh - 60px);
+        overflow-y: auto;
+      }
+
+      .camera-frame {
+        aspect-ratio: 16/9;
+        max-height: 35vh;
+      }
+
+      .right-panel {
+        flex: 1;
+        max-height: calc(100vh - 60px);
+        max-height: calc(100dvh - 60px);
+      }
+
+      .defects-container {
+        max-height: calc(100% - 100px);
+      }
+    }
+
+    /* ====================
+       GALAXY TAB A9 VERTICAL (portrait) - Usar versión móvil mejorada
+       Resolución: ~800x1340 (ancho x alto)
+       ==================== */
+    @media (min-width: 768px) and (max-width: 900px) and (orientation: portrait) {
+
+      /* En vertical, usar el layout móvil pero con ajustes para tablet */
+      body {
+        font-size: 13px !important;
+        padding-top: env(safe-area-inset-top, 0);
+      }
+
+      .main-container {
+        height: 100vh;
+        height: 100dvh;
+      }
+
+      /* Ocultar barras de tablet/desktop, usar móvil */
+      .desktop-top-bar,
+      .tablet-top-bar {
+        display: none !important;
+      }
+
+      /* Header visible y prominente */
+      .header {
+        display: flex !important;
+        padding: 14px 20px;
+        min-height: 60px;
+        background: var(--ilsan-dark-primary);
+        border-bottom: 3px solid var(--ilsan-accent-blue);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+      }
+
+      .mobile-brand-logo {
+        height: 40px;
+      }
+
+      .mobile-brand-name {
+        font-size: 22px !important;
+      }
+
+      .mobile-brand-subtitle {
+        font-size: 11px !important;
+      }
+
+      /* Cámara más grande en tablet vertical */
+      .camera-frame {
+        aspect-ratio: 1/1;
+        max-width: 85vw;
+        max-height: 50vh;
+      }
+
+      /* Botón flotante más grande */
+      .btn-float-capture {
+        width: 72px;
+        height: 72px;
+        bottom: 28px;
+        right: 28px;
+      }
+
+      .btn-float-capture i {
+        font-size: 32px !important;
+      }
+
+      /* Modal de captura más espacioso */
+      .mobile-capture-modal {
+        max-height: 85vh;
+      }
+
+      .mobile-modal-body {
+        padding: 20px 24px;
+      }
+
+      .mobile-form-input,
+      .mobile-form-select {
+        padding: 14px;
+        font-size: 15px !important;
+      }
+    }
   </style>
 </head>
 
@@ -1885,10 +2067,15 @@
           <span class="mobile-brand-subtitle">Defect Management</span>
         </div>
       </div>
+      <!-- Botón cerrar sesión minimalista -->
+      <button class="btn-mobile-logout" @click="cerrarSesion" title="Cerrar Sesión">
+        <i class="bi bi-box-arrow-right"></i>
+      </button>
     </div>
 
     <!-- Overlay oscuro para móvil -->
-    <div v-if="esMobile" class="mobile-overlay" :class="{ show: mostrarSidebarMobile }" @click="closeSidebarMobile"></div>
+    <div v-if="esMobile" class="mobile-overlay" :class="{ show: mostrarSidebarMobile }" @click="closeSidebarMobile">
+    </div>
 
     <!-- Contenedor de contenido -->
     <div class="desktop-content-wrapper">
@@ -2046,7 +2233,8 @@
         </div>
 
         <!-- Botón flotante para captura manual en móvil -->
-        <button v-if="esMobile && !mostrarModalCapturaMobile" class="btn-float-capture" @click="mostrarModalCapturaMobile = true" title="Capturar defecto">
+        <button v-if="esMobile && !mostrarModalCapturaMobile" class="btn-float-capture"
+          @click="mostrarModalCapturaMobile = true" title="Capturar defecto">
           <i class="bi bi-plus-lg"></i>
         </button>
       </div>
@@ -2061,13 +2249,7 @@
           <button class="zoom-btn" @click="decreaseZoom" :disabled="zoomLevel <= minZoom">
             <i class="bi bi-dash-lg"></i>
           </button>
-          <input 
-            type="range" 
-            class="zoom-slider" 
-            v-model.number="zoomLevel"
-            :min="minZoom"
-            :max="maxZoom"
-            step="0.1"
+          <input type="range" class="zoom-slider" v-model.number="zoomLevel" :min="minZoom" :max="maxZoom" step="0.1"
             @input="applyZoom">
           <button class="zoom-btn" @click="increaseZoom" :disabled="zoomLevel >= maxZoom">
             <i class="bi bi-plus-lg"></i>
@@ -2080,8 +2262,8 @@
         <!-- Header -->
         <div class="header">
           <h1 class="header-title">Lista de defectos</h1>
-          <button v-if="esTablet && !esMobile" class="btn-toggle-list" :class="{ collapsed: !mostrarListaDefectos }" @click="toggleListaDefectos"
-            :title="mostrarListaDefectos ? 'Ocultar lista' : 'Mostrar lista'">
+          <button v-if="esTablet && !esMobile" class="btn-toggle-list" :class="{ collapsed: !mostrarListaDefectos }"
+            @click="toggleListaDefectos" :title="mostrarListaDefectos ? 'Ocultar lista' : 'Mostrar lista'">
             <i class="bi bi-chevron-up"></i>
           </button>
         </div>
@@ -2200,11 +2382,8 @@
             <div class="mobile-form-group">
               <label class="mobile-form-label">Línea:</label>
               <div class="mobile-quick-grid">
-                <button type="button" class="mobile-quick-btn" 
-                  :class="{ active: nuevoDefecto.linea === linea }"
-                  v-for="linea in lineas" 
-                  :key="`mobile-linea-${linea}`" 
-                  @click="seleccionarLinea(linea)">
+                <button type="button" class="mobile-quick-btn" :class="{ active: nuevoDefecto.linea === linea }"
+                  v-for="linea in lineas" :key="`mobile-linea-${linea}`" @click="seleccionarLinea(linea)">
                   {{ linea }}
                 </button>
               </div>
@@ -2214,9 +2393,7 @@
               <label class="mobile-form-label">Defecto:</label>
               <select class="mobile-form-input" v-model="nuevoDefecto.defecto" required>
                 <option value="">Selecciona un defecto</option>
-                <option 
-                  v-for="defecto in defectosCatalogo" 
-                  :key="`mobile-defecto-${defecto.codigo}`" 
+                <option v-for="defecto in defectosCatalogo" :key="`mobile-defecto-${defecto.codigo}`"
                   :value="defecto.nombre">
                   {{ defecto.nombre }}
                 </option>
@@ -2225,21 +2402,15 @@
 
             <div class="mobile-form-group">
               <label class="mobile-form-label">Ubicación:</label>
-              <input type="text" 
-                class="mobile-form-input" 
-                v-model="nuevoDefecto.ubicacion" 
-                placeholder="Ubicación del defecto" 
-                required>
+              <input type="text" class="mobile-form-input" v-model="nuevoDefecto.ubicacion"
+                placeholder="Ubicación del defecto" required>
             </div>
 
             <div class="mobile-form-group">
               <label class="mobile-form-label">Área:</label>
               <div class="mobile-quick-grid">
-                <button type="button" class="mobile-quick-btn" 
-                  :class="{ active: nuevoDefecto.area === area }"
-                  v-for="area in areas" 
-                  :key="`mobile-area-${area}`"
-                  @click="seleccionarArea(area)">
+                <button type="button" class="mobile-quick-btn" :class="{ active: nuevoDefecto.area === area }"
+                  v-for="area in areas" :key="`mobile-area-${area}`" @click="seleccionarArea(area)">
                   {{ area }}
                 </button>
               </div>
