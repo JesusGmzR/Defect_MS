@@ -33,6 +33,59 @@ const getRolesGestionables = (userRol: string): UserRole[] => {
   return [];
 };
 
+// ============================================
+// RUTAS ESTÁTICAS (deben ir antes de rutas con parámetros)
+// ============================================
+
+/**
+ * GET /api/usuarios/roles/list
+ * Obtener lista de roles disponibles según el nivel de admin
+ */
+router.get('/roles/list', async (req: AuthenticatedRequest, res: Response) => {
+  const userRol = req.user?.rol || '';
+
+  const allRoles = [
+    { value: 'Inspector_LQC', label: 'Inspector LQC', description: 'Inspección en línea de producción (LQC)' },
+    { value: 'Inspector_OQC', label: 'Inspector OQC', description: 'Inspección de calidad final (OQC)' },
+    { value: 'Reparador', label: 'Reparador', description: 'Reparación de defectos' },
+    { value: 'Supervisor_Calidad', label: 'Supervisor Calidad', description: 'Administra inspectores LQC y OQC' },
+    { value: 'Supervisor_Produccion', label: 'Supervisor Producción', description: 'Administra reparadores' },
+    { value: 'Admin', label: 'Administrador', description: 'Acceso completo al sistema' }
+  ];
+
+  const rolesPermitidos = getRolesGestionables(userRol);
+  const filteredRoles = allRoles.filter(r => rolesPermitidos.includes(r.value as UserRole));
+
+  res.json({
+    success: true,
+    data: filteredRoles
+  });
+});
+
+/**
+ * GET /api/usuarios/areas/list
+ * Obtener lista de áreas/departamentos funcionales para usuarios
+ */
+router.get('/areas/list', async (_req: AuthenticatedRequest, res: Response) => {
+  const areas = [
+    { value: 'LQC', label: 'LQC', description: 'Para inspectores de LQC' },
+    { value: 'OQC', label: 'OQC', description: 'Para inspectores de OQC' },
+    { value: 'Reparador', label: 'Reparador', description: 'Para reparadores' },
+    { value: 'Calidad', label: 'Calidad', description: 'Para Supervisor de Calidad' },
+    { value: 'Produccion', label: 'Producción', description: 'Para Supervisor de Producción' },
+    { value: 'Administracion', label: 'Administración', description: 'Para Administrador' }
+  ];
+
+  res.json({
+    success: true,
+    data: areas
+  });
+});
+
+// ============================================
+// RUTAS CRUD CON PARÁMETROS
+// ============================================
+
 /**
  * GET /api/usuarios
  * Obtener todos los usuarios
@@ -481,51 +534,6 @@ router.delete('/:id/permanent', async (req: AuthenticatedRequest, res: Response)
       ...(process.env.NODE_ENV === 'development' && { details: (error as Error).message })
     });
   }
-});
-
-/**
- * GET /api/usuarios/roles/list
- * Obtener lista de roles disponibles según el nivel de admin
- */
-router.get('/roles/list', async (req: AuthenticatedRequest, res: Response) => {
-  const userRol = req.user?.rol || '';
-
-  const allRoles = [
-    { value: 'Inspector_LQC', label: 'Inspector LQC', description: 'Inspección en línea de producción (LQC)' },
-    { value: 'Inspector_OQC', label: 'Inspector OQC', description: 'Inspección de calidad final (OQC)' },
-    { value: 'Reparador', label: 'Reparador', description: 'Reparación de defectos' },
-    { value: 'Supervisor_Calidad', label: 'Supervisor Calidad', description: 'Administra inspectores LQC y OQC' },
-    { value: 'Supervisor_Produccion', label: 'Supervisor Producción', description: 'Administra reparadores' },
-    { value: 'Admin', label: 'Administrador', description: 'Acceso completo al sistema' }
-  ];
-
-  const rolesPermitidos = getRolesGestionables(userRol);
-  const filteredRoles = allRoles.filter(r => rolesPermitidos.includes(r.value as UserRole));
-
-  res.json({
-    success: true,
-    data: filteredRoles
-  });
-});
-
-/**
- * GET /api/usuarios/areas/list
- * Obtener lista de áreas/departamentos funcionales para usuarios
- */
-router.get('/areas/list', async (_req: AuthenticatedRequest, res: Response) => {
-  const areas = [
-    { value: 'LQC', label: 'LQC', description: 'Para inspectores de LQC' },
-    { value: 'OQC', label: 'OQC', description: 'Para inspectores de OQC' },
-    { value: 'Reparador', label: 'Reparador', description: 'Para reparadores' },
-    { value: 'Calidad', label: 'Calidad', description: 'Para Supervisor de Calidad' },
-    { value: 'Produccion', label: 'Producción', description: 'Para Supervisor de Producción' },
-    { value: 'Administracion', label: 'Administración', description: 'Para Administrador' }
-  ];
-
-  res.json({
-    success: true,
-    data: areas
-  });
 });
 
 export default router;
