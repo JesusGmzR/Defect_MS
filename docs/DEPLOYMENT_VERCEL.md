@@ -31,11 +31,11 @@ Los archivos `capture-app.js` y `app.js` ya usaban URLs relativas (`/api/defecto
 Ve a tu proyecto en Vercel → Settings → Environment Variables y agrega:
 
 ```
-DB_HOST=up-de-fra1-mysql-1.db.run-on-seenode.com
-DB_PORT=11550
-DB_USER=db_rrpq0erbdujn
-DB_PASSWORD=5fUNbSRcPP3LN9K2I33Pr0ge
-DB_NAME=db_rrpq0erbdujn
+DB_HOST=4.236.163.153
+DB_PORT=3306
+DB_USER=mes_admin
+DB_PASSWORD=MesIlsan2026Prod
+DB_NAME=mes_production
 JWT_SECRET=defect_ms_jwt_secret_key_2025_change_in_production
 PORT=3000
 NODE_ENV=production

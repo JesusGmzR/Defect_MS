@@ -13,7 +13,6 @@ const DEFECTOS_CATALOGO = [
   { nombre: 'DAÑADO', codigo: 'DA' },
   { nombre: 'DESALINEADO', codigo: 'DE' },
   { nombre: 'ETIQUETA EQUIVOCADA', codigo: 'EEQ' },
-  { nombre: 'EQUIVOCADO', codigo: 'EQ' },
   { nombre: 'EXCESO DE COATING', codigo: 'EC' },
   { nombre: 'EXCESO SOLDADURA', codigo: 'ES' },
   { nombre: 'FALTANTE', codigo: 'FA' },
@@ -90,7 +89,7 @@ createApp({
         ubicacion: '',
         area: '',
         tipo_inspeccion: 'Visual',
-        etapa_deteccion: '', // Se establecerá según el rol del usuario
+        etapa_deteccion: 'OQC',
         modelo: ''
       },
       defectosHoy: [],
@@ -101,7 +100,7 @@ createApp({
       filtros: {
         materialId: '',
         defectReason: '',
-        linea: '',
+        status: '',
         fechaInicio: getLocalISODate(),
         fechaFin: getLocalISODate()
       },
@@ -110,12 +109,8 @@ createApp({
         mensaje: '',
         tipo: 'exito'
       },
-      // Detección de dispositivo
-      // Galaxy Tab A9 viewport real: vertical ~767px, horizontal ~1200px
-      // Mobile: hasta 820px (cubre Galaxy Tab A9 vertical con margen)
-      // Tablet: 821px - 1200px
-      esTablet: window.innerWidth > 820 && window.innerWidth <= 1200,
-      esMobile: window.innerWidth <= 820,
+      esTablet: window.innerWidth <= 1200,
+      esMobile: window.innerWidth < 768,
       showManualCodigo: false,
       // Escáner QR
       html5QrCode: null,
@@ -132,7 +127,6 @@ createApp({
       showUserDropdown: false,
       nombreUsuario: '',
       rolUsuario: '',
-      puedeCapturar: false, // Solo Inspector_LQC e Inspector_OQC pueden capturar
       // Toggle lista de defectos
       mostrarListaDefectos: false,
       // Móvil
@@ -149,65 +143,34 @@ createApp({
     this.cargarDefectos();
     this.handleResize();
     window.addEventListener('resize', this.handleResize);
-    // Detectar cambio de orientación en dispositivos móviles/tablet
-    window.addEventListener('orientationchange', () => {
-      // Pequeño delay para que las dimensiones se actualicen
-      setTimeout(() => this.handleResize(), 100);
-    });
-
+    
     // Inicializar estado de lista según el tamaño de pantalla
-    // Desktop y Tablet (>820px): visible, Móvil (<=820px): oculta
-    this.mostrarListaDefectos = window.innerWidth > 820;
-
+    // Desktop y Tablet: visible, Móvil: oculta (no se usa el toggle en móvil)
+    this.mostrarListaDefectos = window.innerWidth >= 768;
+    
     // Cargar información del usuario desde localStorage
-    // Soportar ambas claves para compatibilidad
-    const userDataStr = localStorage.getItem('userData') || localStorage.getItem('dms_user');
-    console.log('🔍 userData raw:', userDataStr);
-
-    if (userDataStr) {
-      const user = JSON.parse(userDataStr);
-      console.log('👤 Usuario cargado:', user);
-      console.log('👤 Rol:', user.rol);
-      console.log('👤 Nombre:', user.nombre_completo || user.username);
-
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      const user = JSON.parse(userData);
       this.nombreUsuario = user.nombre_completo || user.username;
       this.rolUsuario = user.rol;
-
-      // Solo Inspector_LQC e Inspector_OQC pueden capturar defectos
-      const rolesCaptura = ['Inspector_LQC', 'Inspector_OQC'];
-      this.puedeCapturar = rolesCaptura.includes(user.rol);
-      console.log('✅ puedeCapturar:', this.puedeCapturar);
-
-      // Establecer etapa_deteccion según el rol del inspector
-      if (user.rol === 'Inspector_LQC') {
-        this.nuevoDefecto.etapa_deteccion = 'LQC';
-        console.log('📌 etapa_deteccion establecida a: LQC');
-      } else if (user.rol === 'Inspector_OQC') {
-        this.nuevoDefecto.etapa_deteccion = 'OQC';
-        console.log('📌 etapa_deteccion establecida a: OQC');
-      } else {
-        console.log('⚠️ Rol no es inspector, etapa_deteccion no establecida');
-      }
-      // Para otros roles (Supervisor_Calidad, Admin, etc.) no se establece - solo pueden consultar
-    } else {
-      console.warn('⚠️ No se encontró userData en localStorage');
     }
-
+    
     // Cerrar dropdown al hacer clic fuera
     document.addEventListener('click', () => {
       if (this.showUserDropdown) {
         this.showUserDropdown = false;
       }
     });
-
-    // Atajo de teclado F1 para capturar (solo si el usuario puede capturar)
+    
+    // Atajo de teclado F1 para capturar
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'F1' && this.puedeCapturar) {
+      if (e.key === 'F1') {
         e.preventDefault();
         this.capturarDefecto();
       }
     });
-
+    
     // Cargar defectos cada 30 segundos
     setInterval(() => {
       this.cargarDefectos();
@@ -215,37 +178,36 @@ createApp({
   },
   beforeUnmount() {
     window.removeEventListener('resize', this.handleResize);
-    window.removeEventListener('orientationchange', this.handleResize);
   },
   computed: {
     defectosFiltrados() {
       let defectos = [...this.defectosHoy];
       console.log('🔧 Filtrando defectos. Total inicial:', defectos.length);
       console.log('🔧 Filtros activos:', this.filtros);
-
+      
       if (this.filtros.materialId) {
-        defectos = defectos.filter(d =>
+        defectos = defectos.filter(d => 
           d.codigo && d.codigo.toLowerCase().includes(this.filtros.materialId.toLowerCase())
         );
         console.log('🔧 Después filtro materialId:', defectos.length);
       }
-
+      
       if (this.filtros.defectReason) {
-        defectos = defectos.filter(d =>
+        defectos = defectos.filter(d => 
           d.defecto && d.defecto.includes(this.filtros.defectReason)
         );
         console.log('🔧 Después filtro defectReason:', defectos.length);
       }
-
-      if (this.filtros.linea) {
-        defectos = defectos.filter(d =>
-          d.linea === this.filtros.linea
+      
+      if (this.filtros.status) {
+        defectos = defectos.filter(d => 
+          d.status === this.filtros.status
         );
-        console.log('🔧 Después filtro linea:', defectos.length);
+        console.log('🔧 Después filtro status:', defectos.length);
       }
-
+      
       // NO aplicar filtro de fecha aquí porque ya se aplica en el servidor
-
+      
       console.log('✅ Total defectos filtrados:', defectos.length);
       return defectos;
     },
@@ -288,26 +250,18 @@ createApp({
       this.mostrarListaDefectos = !this.mostrarListaDefectos;
     },
     handleResize() {
-      // Breakpoints basados en viewport real
-      // Mobile: hasta 820px (Galaxy Tab A9 vertical ~767px + margen)
-      // Tablet: 821px - 1200px (Galaxy Tab A9 horizontal ~1200px)
-      // Desktop: > 1200px
-      const w = window.innerWidth;
-
-      this.esTablet = w > 820 && w <= 1200;
-      this.esMobile = w <= 820;
-
-      console.log(`📱 Resize: ${w}px | Mobile: ${this.esMobile} | Tablet: ${this.esTablet}`);
+      this.esTablet = window.innerWidth <= 1200;
+      this.esMobile = window.innerWidth < 768;
     },
     async cargarDefectos() {
       try {
         const params = {};
-
+        
         if (this.filtros.fechaInicio && this.filtros.fechaFin) {
           params.fechaInicio = this.filtros.fechaInicio;
           params.fechaFin = this.filtros.fechaFin;
         }
-
+        
         console.log('🔍 Cargando defectos con params:', params);
         const response = await axios.get('/api/defectos', { params });
         console.log('📦 Respuesta del servidor:', response.data);
@@ -334,22 +288,16 @@ createApp({
     seleccionarDefectoRapido(defecto) {
       this.nuevoDefecto.defecto = defecto;
     },
-
+    
     async capturarDefecto() {
       try {
-        // Verificar que el usuario tiene permisos para capturar
-        if (!this.puedeCapturar) {
-          this.mostrarMensaje('Acceso Denegado', 'Solo los inspectores pueden capturar defectos', 'error');
-          return;
-        }
-
         // Validar campos
-        if (!this.nuevoDefecto.fecha ||
-          !this.nuevoDefecto.linea ||
-          !this.nuevoDefecto.codigo ||
-          !this.nuevoDefecto.defecto ||
-          !this.nuevoDefecto.ubicacion ||
-          !this.nuevoDefecto.area) {
+        if (!this.nuevoDefecto.fecha || 
+            !this.nuevoDefecto.linea || 
+            !this.nuevoDefecto.codigo || 
+            !this.nuevoDefecto.defecto || 
+            !this.nuevoDefecto.ubicacion || 
+            !this.nuevoDefecto.area) {
           this.mostrarMensaje('Error', 'Todos los campos son requeridos', 'error');
           return;
         }
@@ -364,30 +312,6 @@ createApp({
         console.log('🕐 Fecha/Hora a registrar:', fechaHoraLocal);
 
         // Preparar datos
-        // Asegurar que tenemos los valores correctos del usuario actual
-        let registradoPor = this.nombreUsuario;
-        let etapaDeteccion = this.nuevoDefecto.etapa_deteccion;
-
-        // Si no tenemos el nombre del usuario, intentar obtenerlo de localStorage
-        if (!registradoPor || registradoPor === 'Sistema') {
-          const userDataStr = localStorage.getItem('userData') || localStorage.getItem('dms_user');
-          if (userDataStr) {
-            const user = JSON.parse(userDataStr);
-            registradoPor = user.nombre_completo || user.username || 'Sistema';
-            // También actualizar etapa_deteccion si está vacía
-            if (!etapaDeteccion) {
-              if (user.rol === 'Inspector_LQC') {
-                etapaDeteccion = 'LQC';
-              } else if (user.rol === 'Inspector_OQC') {
-                etapaDeteccion = 'OQC';
-              }
-            }
-          }
-        }
-
-        console.log('👤 registrado_por final:', registradoPor);
-        console.log('📌 etapa_deteccion final:', etapaDeteccion);
-
         const defectoData = {
           fecha: fechaHoraLocal, // Enviar fecha seleccionada + hora actual en formato MySQL
           linea: this.nuevoDefecto.linea,
@@ -397,20 +321,20 @@ createApp({
           area: this.nuevoDefecto.area,
           modelo: this.nuevoDefecto.modelo || '',
           tipo_inspeccion: this.nuevoDefecto.tipo_inspeccion,
-          etapa_deteccion: etapaDeteccion,
-          registrado_por: registradoPor
+          etapa_deteccion: this.nuevoDefecto.etapa_deteccion,
+          registrado_por: 'Sistema Web OQC'
         };
 
         console.log('📤 Datos enviados al servidor:', defectoData);
 
         // Enviar al servidor
         const response = await axios.post('/api/defectos', defectoData);
-
+        
         if (response.data.success) {
           this.mostrarMensaje('Éxito', 'Defecto capturado correctamente', 'exito');
           this.limpiarFormulario();
           this.cargarDefectos();
-
+          
           // Cerrar modal móvil después de capturar
           if (this.esMobile) {
             this.mostrarModalCapturaMobile = false;
@@ -422,7 +346,7 @@ createApp({
         this.mostrarMensaje('Error', mensaje, 'error');
       }
     },
-
+    
     limpiarFormulario() {
       this.nuevoDefecto.linea = '';
       this.nuevoDefecto.codigo = '';
@@ -433,13 +357,13 @@ createApp({
       this.nuevoDefecto.fecha = getLocalISODate();
       this.scannedCode = null;
       this.showManualCodigo = false;
-
+      
       // Cerrar modal móvil al limpiar
       if (this.esMobile) {
         this.mostrarModalCapturaMobile = false;
       }
     },
-
+    
     formatFecha(fechaStr) {
       if (!fechaStr) return '';
       const fecha = toDateSafe(fechaStr);
@@ -453,7 +377,7 @@ createApp({
         timeZone: MX_TIMEZONE
       });
     },
-
+    
     formatFechaSolo(fechaStr) {
       if (!fechaStr) return '';
       const fecha = toDateSafe(fechaStr);
@@ -465,7 +389,7 @@ createApp({
         timeZone: MX_TIMEZONE
       });
     },
-
+    
     formatHora(fechaStr) {
       if (!fechaStr) return '';
       const fecha = toDateSafe(fechaStr);
@@ -477,7 +401,7 @@ createApp({
         timeZone: MX_TIMEZONE
       });
     },
-
+    
     translateStatus(status) {
       const translations = {
         'Pendiente_Reparacion': 'New',
@@ -488,7 +412,7 @@ createApp({
       };
       return translations[status] || status;
     },
-
+    
     getStatusClass(status) {
       const classes = {
         'Pendiente_Reparacion': 'status-new',
@@ -499,17 +423,17 @@ createApp({
       };
       return classes[status] || 'status-new';
     },
-
+    
     selectDefecto(defecto) {
       this.selectedDefecto = defecto;
       console.log('Defecto seleccionado:', defecto);
     },
-
+    
     descargarExcel() {
       try {
         // Crear workbook y worksheet
         const wb = XLSX.utils.book_new();
-
+        
         // Preparar datos para Excel
         const datos = this.defectosFiltrados.map(defecto => ({
           'Fecha': this.formatFechaSolo(defecto.fecha),
@@ -525,10 +449,10 @@ createApp({
           'Status': this.translateStatus(defecto.status),
           'Capturista': defecto.registrado_por || 'Sistema'
         }));
-
+        
         // Crear worksheet
         const ws = XLSX.utils.json_to_sheet(datos);
-
+        
         // Ajustar anchos de columna
         const colWidths = [
           { wch: 12 }, // Fecha
@@ -545,24 +469,24 @@ createApp({
           { wch: 20 }  // Capturista
         ];
         ws['!cols'] = colWidths;
-
+        
         // Agregar worksheet al workbook
         XLSX.utils.book_append_sheet(wb, ws, 'Defectos');
-
+        
         // Generar nombre de archivo con fecha
         const fecha = new Date().toISOString().slice(0, 10);
         const nombreArchivo = `Defectos_${fecha}.xlsx`;
-
+        
         // Descargar archivo
         XLSX.writeFile(wb, nombreArchivo);
-
+        
         this.mostrarMensaje('Éxito', `Archivo ${nombreArchivo} descargado correctamente`, 'exito');
       } catch (error) {
         console.error('Error al descargar Excel:', error);
         this.mostrarMensaje('Error', 'Error al generar archivo Excel', 'error');
       }
     },
-
+    
     mostrarMensaje(titulo, mensaje, tipo = 'exito') {
       this.mensajeModal.titulo = titulo;
       this.mensajeModal.mensaje = mensaje;
@@ -578,7 +502,7 @@ createApp({
         }, 2000);
       }
     },
-
+    
     // ===== SISTEMA DE ESCANEO QR =====
     async inicializarEscanerQR() {
       if (this.cameraInitializing) return;
@@ -595,32 +519,32 @@ createApp({
         this.cameraStatus = 'Detectando cámaras disponibles...';
         const cameras = await Html5Qrcode.getCameras();
         this.availableCameras = cameras;
-
+        
         if (cameras && cameras.length > 0) {
           console.log(`✓ Encontradas ${cameras.length} cámaras`);
-
-          const rearCamera = cameras.find(c =>
-            c.label.toLowerCase().includes('back') ||
+          
+          const rearCamera = cameras.find(c => 
+            c.label.toLowerCase().includes('back') || 
             c.label.toLowerCase().includes('rear') ||
             c.label.toLowerCase().includes('environment')
           );
-
+          
           this.currentCameraId = rearCamera ? rearCamera.id : cameras[0].id;
-
+          
           this.cameraReady = true;
           this.cameraInitializing = false;
-
+          
           await this.$nextTick();
           await new Promise(resolve => setTimeout(resolve, 100));
-
+          
           const elemento = document.getElementById('qr-reader');
           if (!elemento) {
             throw new Error('Elemento qr-reader no encontrado');
           }
-
+          
           this.html5QrCode = new Html5Qrcode("qr-reader");
           await this.iniciarEscaneo();
-
+          
           this.cameraStatus = '✓ Cámara activada';
         } else {
           this.cameraStatus = '❌ No se encontraron cámaras';
@@ -633,7 +557,7 @@ createApp({
         this.cameraStatus = '❌ Error al acceder a la cámara';
       }
     },
-
+    
     async iniciarEscaneo() {
       try {
         const config = {
@@ -662,7 +586,7 @@ createApp({
             // Error de escaneo continuo (normal)
           }
         );
-
+        
         // Capturar el videoTrack después de iniciar el stream
         await this.$nextTick();
         setTimeout(() => {
@@ -680,72 +604,72 @@ createApp({
             console.warn('No se pudo capturar videoTrack:', err);
           }
         }, 500);
-
+        
       } catch (error) {
         console.error('Error al iniciar escaneo:', error);
         throw error;
       }
     },
-
+    
     onCodigoDetectado(codigoText) {
       const ahora = Date.now();
-
+      
       if (codigoText === this.lastScannedCode && (ahora - this.lastScanTime) < 3000) {
         return;
       }
 
       console.log('Código detectado:', codigoText);
-
+      
       this.lastScannedCode = codigoText;
       this.lastScanTime = ahora;
       this.scannedCode = codigoText.toUpperCase().trim();
-
+      
       // Aplicar automáticamente al campo código
       this.nuevoDefecto.codigo = this.scannedCode;
-
+      
       // En móvil, abrir modal de captura automáticamente
       if (this.esMobile) {
         this.mostrarModalCapturaMobile = true;
       }
-
+      
       // Limpiar después de 3 segundos
       setTimeout(() => {
         this.scannedCode = null;
       }, 3000);
     },
-
+    
     // ===== FUNCIONES MÓVILES =====
     toggleSidebarMobile() {
       this.mostrarSidebarMobile = !this.mostrarSidebarMobile;
     },
-
+    
     closeSidebarMobile() {
       this.mostrarSidebarMobile = false;
     },
-
+    
     cerrarModalCapturaMobile() {
       this.mostrarModalCapturaMobile = false;
     },
-
+    
     async switchCamera() {
       try {
         if (this.availableCameras.length <= 1) return;
-
+        
         if (this.html5QrCode && this.html5QrCode.isScanning) {
           await this.html5QrCode.stop();
           this.videoTrack = null; // Limpiar track al cambiar cámara
         }
-
+        
         const currentIndex = this.availableCameras.findIndex(c => c.id === this.currentCameraId);
         const nextIndex = (currentIndex + 1) % this.availableCameras.length;
         this.currentCameraId = this.availableCameras[nextIndex].id;
-
+        
         await this.iniciarEscaneo();
       } catch (error) {
         console.error('Error al cambiar cámara:', error);
       }
     },
-
+    
     // Métodos de zoom
     async applyZoom() {
       try {
@@ -756,7 +680,7 @@ createApp({
             this.videoTrack = stream.getVideoTracks()[0];
           }
         }
-
+        
         if (this.videoTrack) {
           const capabilities = this.videoTrack.getCapabilities();
           if (capabilities.zoom) {
@@ -769,14 +693,14 @@ createApp({
         console.error('Error aplicando zoom:', error);
       }
     },
-
+    
     increaseZoom() {
       if (this.zoomLevel < this.maxZoom) {
         this.zoomLevel = Math.min(this.maxZoom, this.zoomLevel + 0.5);
         this.applyZoom();
       }
     },
-
+    
     decreaseZoom() {
       if (this.zoomLevel > this.minZoom) {
         this.zoomLevel = Math.max(this.minZoom, this.zoomLevel - 0.5);
