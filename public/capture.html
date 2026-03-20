@@ -2208,8 +2208,13 @@
 
               <div class="form-group">
                 <label class="form-label">Defecto:</label>
-                <input type="text" class="form-control" v-model="nuevoDefecto.defecto"
-                  placeholder="Descripción del defecto" required>
+                <select class="form-control" v-model="nuevoDefecto.defecto" required>
+                  <option value="">Selecciona un defecto</option>
+                  <option v-for="defecto in defectosCatalogo" :key="`desktop-defecto-${defecto.codigo}`"
+                    :value="defecto.nombre">
+                    {{ defecto.nombre }}
+                  </option>
+                </select>
               </div>
 
               <div class="form-group">
