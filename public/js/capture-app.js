@@ -687,6 +687,25 @@ createApp({
       }
     },
 
+    async buscarModelo() {
+      const codigo = this.nuevoDefecto.codigo;
+      if (!codigo || codigo.length < 9) {
+        this.nuevoDefecto.modelo = '';
+        return;
+      }
+
+      try {
+        const response = await axios.get('/api/modelo', {
+          params: { codigo }
+        });
+        this.nuevoDefecto.modelo = response.data.modelo || '';
+        console.log('Modelo encontrado:', this.nuevoDefecto.modelo);
+      } catch (error) {
+        console.error('Error al buscar modelo:', error);
+        this.nuevoDefecto.modelo = '';
+      }
+    },
+
     onCodigoDetectado(codigoText) {
       const ahora = Date.now();
 
@@ -702,6 +721,9 @@ createApp({
 
       // Aplicar automáticamente al campo código
       this.nuevoDefecto.codigo = this.scannedCode;
+
+      // Buscar modelo automáticamente
+      this.buscarModelo();
 
       // En móvil, abrir modal de captura automáticamente
       if (this.esMobile) {
